@@ -1,5 +1,8 @@
 # SDK for Supra Node API
 
+**NOTE**
+TODO: Need to update imports in examples
+
 > **_NOTE:_**
 > This is the `legacy TypeScript SDK`, aka the npm package `aptos`. For a more robust SDK and better support, we recommend upgrading to the `new TypeScript SDK` [@aptos-labs/ts-sdk](https://github.com/aptos-labs/aptos-ts-sdk). Take a look at the [documentation](https://aptos.dev/sdks/new-ts-sdk/) and the [migration guide](https://aptos.dev/sdks/new-ts-sdk/migration-guide).
 

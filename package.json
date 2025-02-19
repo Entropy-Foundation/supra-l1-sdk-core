@@ -1,6 +1,6 @@
 {
-  "name": "aptos",
-  "description": "Aptos SDK",
+  "name": "legacy-aptos-sdk",
+  "description": "Legacy Aptos SDK",
   "packageManager": "pnpm@8.3.1",
   "license": "Apache-2.0",
   "engines": {
@@ -17,6 +17,7 @@
     }
   },
   "scripts": {
+    "prepare": "npm run build",
     "prepack": "pnpm build",
     "build": "pnpm build:clean && pnpm _build:node && pnpm _build:browser",
     "build:clean": "rm -rf dist",
