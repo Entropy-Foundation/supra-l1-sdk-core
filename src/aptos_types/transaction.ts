@@ -215,8 +215,6 @@ export class EntryFunction {
 
   static deserialize(deserializer: Deserializer): EntryFunction {
     const module_name = ModuleId.deserialize(deserializer);
-    console.log(module_name);
-
     const function_name = Identifier.deserialize(deserializer);
     const ty_args = deserializeVector(deserializer, TypeTag);
 
@@ -575,7 +573,6 @@ export abstract class AutomationRegistrationParams {
 
   static deserialize(deserializer: Deserializer): AutomationRegistrationParams {
     const index = deserializer.deserializeUleb128AsU32();
-    // const index=0;
     switch (index) {
       case 0:
         return AutomationRegistrationParamsV1.load(deserializer);

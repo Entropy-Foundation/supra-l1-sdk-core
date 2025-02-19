@@ -17,7 +17,6 @@
     }
   },
   "scripts": {
-    "prepare": "npm run build",
     "prepack": "pnpm build",
     "build": "pnpm build:clean && pnpm _build:node && pnpm _build:browser",
     "build:clean": "rm -rf dist",
