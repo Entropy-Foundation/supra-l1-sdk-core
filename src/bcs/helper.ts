@@ -12,10 +12,26 @@ interface Serializable {
 /**
  * Serializes a vector values that are "Serializable".
  */
-export function serializeVector<T extends Serializable>(value: Seq<T>, serializer: Serializer): void {
+export function serializeVector<T extends Serializable>(
+  value: Seq<T>,
+  serializer: Serializer
+): void {
   serializer.serializeU32AsUleb128(value.length);
   value.forEach((item: T) => {
     item.serialize(serializer);
+  });
+}
+
+/**
+ * Serializes a vector of bytes.
+ */
+export function serializeVectorOfBytes(
+  value: Seq<Bytes>,
+  serializer: Serializer
+): void {
+  serializer.serializeU32AsUleb128(value.length);
+  value.forEach((item: Bytes) => {
+    serializer.serializeBytes(item);
   });
 }
 
@@ -41,6 +57,18 @@ export function deserializeVector(deserializer: Deserializer, cls: any): any[] {
   const list: Seq<typeof cls> = [];
   for (let i = 0; i < length; i += 1) {
     list.push(cls.deserialize(deserializer));
+  }
+  return list;
+}
+
+/**
+ * Deserializes a vector of bytes.
+ */
+export function deserializeVectorOfBytes(deserializer: Deserializer): Bytes[] {
+  const length = deserializer.deserializeUleb128AsU32();
+  const list: Seq<Bytes> = [];
+  for (let i = 0; i < length; i += 1) {
+    list.push(deserializer.deserializeBytes());
   }
   return list;
 }
