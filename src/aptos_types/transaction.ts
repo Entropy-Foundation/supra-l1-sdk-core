@@ -20,8 +20,14 @@ import {
   bcsToBytes,
   Uint16,
   Uint256,
+  serializeVectorOfBytes,
+  deserializeVectorOfBytes,
 } from "../bcs";
-import { AccountAuthenticator, TransactionAuthenticator, TransactionAuthenticatorMultiAgent } from "./authenticator";
+import {
+  AccountAuthenticator,
+  TransactionAuthenticator,
+  TransactionAuthenticatorMultiAgent,
+} from "./authenticator";
 import { Identifier } from "./identifier";
 import { TypeTag } from "./type_tag";
 import { AccountAddress } from "./account_address";
@@ -49,7 +55,7 @@ export class RawTransaction {
     public readonly max_gas_amount: Uint64,
     public readonly gas_unit_price: Uint64,
     public readonly expiration_timestamp_secs: Uint64,
-    public readonly chain_id: ChainId,
+    public readonly chain_id: ChainId
   ) {}
 
   serialize(serializer: Serializer): void {
@@ -77,7 +83,7 @@ export class RawTransaction {
       max_gas_amount,
       gas_unit_price,
       expiration_timestamp_secs,
-      chain_id,
+      chain_id
     );
   }
 }
@@ -104,7 +110,7 @@ export class Script {
   constructor(
     public readonly code: Bytes,
     public readonly ty_args: Seq<TypeTag>,
-    public readonly args: Seq<TransactionArgument>,
+    public readonly args: Seq<TransactionArgument>
   ) {}
 
   serialize(serializer: Serializer): void {
@@ -145,7 +151,7 @@ export class EntryFunction {
     public readonly module_name: ModuleId,
     public readonly function_name: Identifier,
     public readonly ty_args: Seq<TypeTag>,
-    public readonly args: Seq<Bytes>,
+    public readonly args: Seq<Bytes>
   ) {}
 
   /**
@@ -168,8 +174,18 @@ export class EntryFunction {
    * ```
    * @returns
    */
-  static natural(module: string, func: string, ty_args: Seq<TypeTag>, args: Seq<Bytes>): EntryFunction {
-    return new EntryFunction(ModuleId.fromStr(module), new Identifier(func), ty_args, args);
+  static natural(
+    module: string,
+    func: string,
+    ty_args: Seq<TypeTag>,
+    args: Seq<Bytes>
+  ): EntryFunction {
+    return new EntryFunction(
+      ModuleId.fromStr(module),
+      new Identifier(func),
+      ty_args,
+      args
+    );
   }
 
   /**
@@ -177,7 +193,12 @@ export class EntryFunction {
    *
    * @deprecated.
    */
-  static natual(module: string, func: string, ty_args: Seq<TypeTag>, args: Seq<Bytes>): EntryFunction {
+  static natual(
+    module: string,
+    func: string,
+    ty_args: Seq<TypeTag>,
+    args: Seq<Bytes>
+  ): EntryFunction {
     return EntryFunction.natural(module, func, ty_args, args);
   }
 
@@ -228,7 +249,9 @@ export class MultiSigTransactionPayload {
     // TODO: Support other types of payload beside EntryFunction.
     // This is the enum value indicating which type of payload the multisig tx contains.
     deserializer.deserializeUleb128AsU32();
-    return new MultiSigTransactionPayload(EntryFunction.deserialize(deserializer));
+    return new MultiSigTransactionPayload(
+      EntryFunction.deserialize(deserializer)
+    );
   }
 }
 
@@ -241,7 +264,7 @@ export class MultiSig {
    */
   constructor(
     public readonly multisig_address: AccountAddress,
-    public readonly transaction_payload?: MultiSigTransactionPayload,
+    public readonly transaction_payload?: MultiSigTransactionPayload
   ) {}
 
   serialize(serializer: Serializer): void {
@@ -261,7 +284,8 @@ export class MultiSig {
     const payloadPresent = deserializer.deserializeBool();
     let transaction_payload;
     if (payloadPresent) {
-      transaction_payload = MultiSigTransactionPayload.deserialize(deserializer);
+      transaction_payload =
+        MultiSigTransactionPayload.deserialize(deserializer);
     }
     return new MultiSig(multisig_address, transaction_payload);
   }
@@ -292,7 +316,7 @@ export class ModuleId {
    */
   constructor(
     public readonly address: AccountAddress,
-    public readonly name: Identifier,
+    public readonly name: Identifier
   ) {}
 
   /**
@@ -305,7 +329,10 @@ export class ModuleId {
     if (parts.length !== 2) {
       throw new Error("Invalid module id.");
     }
-    return new ModuleId(AccountAddress.fromHex(new HexString(parts[0])), new Identifier(parts[1]));
+    return new ModuleId(
+      AccountAddress.fromHex(new HexString(parts[0])),
+      new Identifier(parts[1])
+    );
   }
 
   serialize(serializer: Serializer): void {
@@ -354,7 +381,7 @@ export class SignedTransaction {
    */
   constructor(
     public readonly raw_txn: RawTransaction,
-    public readonly authenticator: TransactionAuthenticator,
+    public readonly authenticator: TransactionAuthenticator
   ) {}
 
   serialize(serializer: Serializer): void {
@@ -380,7 +407,9 @@ export abstract class RawTransactionWithData {
       case 1:
         return FeePayerRawTransaction.load(deserializer);
       default:
-        throw new Error(`Unknown variant index for RawTransactionWithData: ${index}`);
+        throw new Error(
+          `Unknown variant index for RawTransactionWithData: ${index}`
+        );
     }
   }
 }
@@ -388,7 +417,7 @@ export abstract class RawTransactionWithData {
 export class MultiAgentRawTransaction extends RawTransactionWithData {
   constructor(
     public readonly raw_txn: RawTransaction,
-    public readonly secondary_signer_addresses: Seq<AccountAddress>,
+    public readonly secondary_signer_addresses: Seq<AccountAddress>
   ) {
     super();
   }
@@ -397,12 +426,18 @@ export class MultiAgentRawTransaction extends RawTransactionWithData {
     // enum variant index
     serializer.serializeU32AsUleb128(0);
     this.raw_txn.serialize(serializer);
-    serializeVector<TransactionArgument>(this.secondary_signer_addresses, serializer);
+    serializeVector<TransactionArgument>(
+      this.secondary_signer_addresses,
+      serializer
+    );
   }
 
   static load(deserializer: Deserializer): MultiAgentRawTransaction {
     const rawTxn = RawTransaction.deserialize(deserializer);
-    const secondarySignerAddresses = deserializeVector(deserializer, AccountAddress);
+    const secondarySignerAddresses = deserializeVector(
+      deserializer,
+      AccountAddress
+    );
 
     return new MultiAgentRawTransaction(rawTxn, secondarySignerAddresses);
   }
@@ -412,7 +447,7 @@ export class FeePayerRawTransaction extends RawTransactionWithData {
   constructor(
     public readonly raw_txn: RawTransaction,
     public readonly secondary_signer_addresses: Seq<AccountAddress>,
-    public readonly fee_payer_address: AccountAddress,
+    public readonly fee_payer_address: AccountAddress
   ) {
     super();
   }
@@ -421,16 +456,26 @@ export class FeePayerRawTransaction extends RawTransactionWithData {
     // enum variant index
     serializer.serializeU32AsUleb128(1);
     this.raw_txn.serialize(serializer);
-    serializeVector<TransactionArgument>(this.secondary_signer_addresses, serializer);
+    serializeVector<TransactionArgument>(
+      this.secondary_signer_addresses,
+      serializer
+    );
     this.fee_payer_address.serialize(serializer);
   }
 
   static load(deserializer: Deserializer): FeePayerRawTransaction {
     const rawTxn = RawTransaction.deserialize(deserializer);
-    const secondarySignerAddresses = deserializeVector(deserializer, AccountAddress);
+    const secondarySignerAddresses = deserializeVector(
+      deserializer,
+      AccountAddress
+    );
     const feePayerAddress = AccountAddress.deserialize(deserializer);
 
-    return new FeePayerRawTransaction(rawTxn, secondarySignerAddresses, feePayerAddress);
+    return new FeePayerRawTransaction(
+      rawTxn,
+      secondarySignerAddresses,
+      feePayerAddress
+    );
   }
 }
 
@@ -447,8 +492,12 @@ export abstract class TransactionPayload {
         return TransactionPayloadEntryFunction.load(deserializer);
       case 3:
         return TransactionPayloadMultisig.load(deserializer);
+      case 4:
+        return TransactionPayloadAutomationRegistration.load(deserializer);
       default:
-        throw new Error(`Unknown variant index for TransactionPayload: ${index}`);
+        throw new Error(
+          `Unknown variant index for TransactionPayload: ${index}`
+        );
     }
   }
 }
@@ -501,6 +550,96 @@ export class TransactionPayloadMultisig extends TransactionPayload {
   }
 }
 
+export class TransactionPayloadAutomationRegistration extends TransactionPayload {
+  constructor(public readonly value: AutomationRegistrationParams) {
+    super();
+  }
+
+  serialize(serializer: Serializer): void {
+    serializer.serializeU32AsUleb128(4);
+    this.value.serialize(serializer);
+  }
+
+  static load(
+    deserializer: Deserializer
+  ): TransactionPayloadAutomationRegistration {
+    const value = AutomationRegistrationParams.deserialize(deserializer);
+    return new TransactionPayloadAutomationRegistration(value);
+  }
+}
+
+export abstract class AutomationRegistrationParams {
+  abstract serialize(serializer: Serializer): void;
+
+  static deserialize(deserializer: Deserializer): AutomationRegistrationParams {
+    const index = deserializer.deserializeUleb128AsU32();
+    switch (index) {
+      case 0:
+        return AutomationRegistrationParamsV1.load(deserializer);
+      default:
+        throw new Error(
+          `Unknown variant index for AutomationRegistrationParams: ${index}`
+        );
+    }
+  }
+}
+
+export class AutomationRegistrationParamsV1 extends AutomationRegistrationParams {
+  constructor(public readonly value: AutomationRegistrationParamsV1Data) {
+    super();
+  }
+
+  serialize(serializer: Serializer): void {
+    serializer.serializeU32AsUleb128(0);
+    this.value.serialize(serializer);
+  }
+
+  static load(deserializer: Deserializer): AutomationRegistrationParamsV1 {
+    const value = AutomationRegistrationParamsV1Data.deserialize(deserializer);
+    return new AutomationRegistrationParamsV1(value);
+  }
+}
+
+export class AutomationRegistrationParamsV1Data {
+  constructor(
+    public readonly automated_function: EntryFunction,
+    public readonly max_gas_amount: Uint64,
+    public readonly gas_price_cap: Uint64,
+    public readonly automation_fee_cap_for_epoch: Uint64,
+    public readonly expiration_timestamp_secs: Uint64,
+    public readonly aux_data: Seq<Bytes>
+  ) {}
+
+  serialize(serializer: Serializer): void {
+    this.automated_function.serialize(serializer);
+    serializer.serializeU64(this.max_gas_amount);
+    serializer.serializeU64(this.gas_price_cap);
+    serializer.serializeU64(this.automation_fee_cap_for_epoch);
+    serializer.serializeU64(this.expiration_timestamp_secs);
+    serializeVectorOfBytes(this.aux_data, serializer);
+  }
+
+  static deserialize(
+    deserializer: Deserializer
+  ): AutomationRegistrationParamsV1Data {
+    const automated_function = EntryFunction.deserialize(deserializer);
+    const max_gas_amount = deserializer.deserializeU64();
+    const gas_price_cap = deserializer.deserializeU64();
+    const automation_fee_cap_for_epoch = deserializer.deserializeU64();
+    const expiration_timestamp_secs = deserializer.deserializeU64();
+    const aux_data = deserializeVectorOfBytes(deserializer);
+
+    return new AutomationRegistrationParamsV1Data(
+      automated_function,
+      max_gas_amount,
+      gas_price_cap,
+      automation_fee_cap_for_epoch,
+      expiration_timestamp_secs,
+      aux_data
+    );
+  }
+}
+
 export class ChainId {
   constructor(public readonly value: Uint8) {}
 
@@ -539,7 +678,9 @@ export abstract class TransactionArgument {
       case 8:
         return TransactionArgumentU256.load(deserializer);
       default:
-        throw new Error(`Unknown variant index for TransactionArgument: ${index}`);
+        throw new Error(
+          `Unknown variant index for TransactionArgument: ${index}`
+        );
     }
   }
 }
