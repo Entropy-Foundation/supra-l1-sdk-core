@@ -3,9 +3,9 @@
 
 import { HexString } from "../../utils";
 import { Deserializer, Serializer } from "../../bcs";
-import { ScriptABI, EntryFunctionABI, TransactionScriptABI, ArgumentABI } from "../../aptos_types/abi";
-import { TypeTagAddress, TypeTagU64 } from "../../aptos_types";
-import { ModuleId } from "../../aptos_types";
+import { ScriptABI, EntryFunctionABI, TransactionScriptABI, ArgumentABI } from "../../supra_types/abi";
+import { TypeTagAddress, TypeTagU64 } from "../../supra_types";
+import { ModuleId } from "../../supra_types";
 
 // eslint-disable-next-line operator-linebreak
 const SCRIPT_FUNCTION_ABI =

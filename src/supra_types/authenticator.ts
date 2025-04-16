@@ -33,7 +33,6 @@ export class TransactionAuthenticatorEd25519 extends TransactionAuthenticator {
    *
    * @param public_key Client's public key.
    * @param signature Signature of a raw transaction.
-   * @see {@link https://aptos.dev/guides/creating-a-signed-transaction/ | Creating a Signed Transaction}
    * for details about generating a signature.
    */
   constructor(

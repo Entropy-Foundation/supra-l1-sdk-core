@@ -1,7 +1,7 @@
 // Copyright © Aptos Foundation
 // SPDX-License-Identifier: Apache-2.0
 
-import { AccountAddress } from "../../aptos_types";
+import { AccountAddress } from "../../supra_types";
 
 const ADDRESS_LONG = "000000000000000000000000000000000000000000000000000000000a550c18";
 const ADDRESS_SHORT = "a550c18";

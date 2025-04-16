@@ -34,13 +34,13 @@ import { AccountAddress } from "./account_address";
 
 export class RawTransaction {
   /**
-   * RawTransactions contain the metadata and payloads that can be submitted to Aptos chain for execution.
-   * RawTransactions must be signed before Aptos chain can execute them.
+   * RawTransactions contain the metadata and payloads that can be submitted to Supra chain for execution.
+   * RawTransactions must be signed before Supra chain can execute them.
    *
    * @param sender Account address of the sender.
    * @param sequence_number Sequence number of this transaction. This must match the sequence number stored in
    *   the sender's account at the time the transaction executes.
-   * @param payload Instructions for the Aptos Blockchain, including publishing a module,
+   * @param payload Instructions for the Supra Blockchain, including publishing a module,
    *   execute a entry function or execute a script payload.
    * @param max_gas_amount Maximum total gas to spend for this transaction. The account must have more
    *   than this gas or the transaction will be discarded during validation.
@@ -90,7 +90,7 @@ export class RawTransaction {
 
 export class Script {
   /**
-   * Scripts contain the Move bytecodes payload that can be submitted to Aptos chain for execution.
+   * Scripts contain the Move bytecodes payload that can be submitted to Supra chain for execution.
    * @param code Move bytecode
    * @param ty_args Type arguments that bytecode requires.
    *
@@ -293,7 +293,7 @@ export class MultiSig {
 
 export class Module {
   /**
-   * Contains the bytecode of a Move module that can be published to the Aptos chain.
+   * Contains the bytecode of a Move module that can be published to the Supra chain.
    * @param code Move bytecode of a module.
    */
   constructor(public readonly code: Bytes) {}
@@ -372,7 +372,6 @@ export class SignedTransaction {
    * A SignedTransaction consists of a raw transaction and an authenticator. The authenticator
    * contains a client's public key and the signature of the raw transaction.
    *
-   * @see {@link https://aptos.dev/guides/creating-a-signed-transaction/ | Creating a Signed Transaction}
    *
    * @param raw_txn
    * @param authenticator Contains a client's public key and the signature of the raw transaction.

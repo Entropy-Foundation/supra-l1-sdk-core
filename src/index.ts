@@ -4,7 +4,6 @@
 export * from "./account";
 export * as BCS from "./bcs";
 export * from "./transaction_builder";
-export * as TokenTypes from "./aptos_types/token_types";
 export * as Types from "./generated/index";
 export * from "./utils/hex_string";
 export * from "./utils/hd-key";

@@ -16,8 +16,6 @@ export class MultiEd25519PublicKey {
    * transaction to be executed, at least K out of the N authorized signers have signed the transaction
    * and passed the check conducted by the chain.
    *
-   * @see {@link
-   * https://aptos.dev/guides/creating-a-signed-transaction#multisignature-transactions | Creating a Signed Transaction}
    *
    * @param public_keys A list of public keys
    * @param threshold At least "threshold" signatures must be valid
@@ -69,8 +67,6 @@ export class MultiEd25519Signature {
   /**
    * Signature for a K-of-N multisig transaction.
    *
-   * @see {@link
-   * https://aptos.dev/guides/creating-a-signed-transaction#multisignature-transactions | Creating a Signed Transaction}
    *
    * @param signatures A list of ed25519 signatures
    * @param bitmap 4 bytes, at most 32 signatures are supported. If Nth bit value is `1`, the Nth

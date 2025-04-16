@@ -9,19 +9,19 @@ import { sha3_256 as sha3Hash } from "@noble/hashes/sha3";
 import { derivePath } from "../utils/hd-key";
 import { HexString, MaybeHexString, Memoize } from "../utils";
 import * as Gen from "../generated/index";
-import { AccountAddress, AuthenticationKey, Ed25519PublicKey } from "../aptos_types";
+import { AccountAddress, AuthenticationKey, Ed25519PublicKey } from "../supra_types";
 import { bcsToBytes } from "../bcs";
 
-export interface AptosAccountObject {
+export interface SupraAccountObject {
   address?: Gen.HexEncodedBytes;
   publicKeyHex?: Gen.HexEncodedBytes;
   privateKeyHex: Gen.HexEncodedBytes;
 }
 
 /**
- * Class for creating and managing Aptos account
+ * Class for creating and managing Supra account
  */
-export class AptosAccount {
+export class SupraAccount {
   /**
    * A private key and public key, associated with the given account
    */
@@ -32,8 +32,8 @@ export class AptosAccount {
    */
   private readonly accountAddress: HexString;
 
-  static fromAptosAccountObject(obj: AptosAccountObject): AptosAccount {
-    return new AptosAccount(HexString.ensure(obj.privateKeyHex).toUint8Array(), obj.address);
+  static fromSupraAccountObject(obj: SupraAccountObject): SupraAccount {
+    return new SupraAccount(HexString.ensure(obj.privateKeyHex).toUint8Array(), obj.address);
   }
 
   /**
@@ -48,10 +48,10 @@ export class AptosAccount {
    * @param path. (e.g. m/44'/637'/0'/0'/0')
    * Detailed description: {@link https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki}
    * @param mnemonics.
-   * @returns AptosAccount
+   * @returns SupraAccount
    */
-  static fromDerivePath(path: string, mnemonics: string): AptosAccount {
-    if (!AptosAccount.isValidPath(path)) {
+  static fromDerivePath(path: string, mnemonics: string): SupraAccount {
+    if (!SupraAccount.isValidPath(path)) {
       throw new Error("Invalid derivation path");
     }
 
@@ -63,7 +63,7 @@ export class AptosAccount {
 
     const { key } = derivePath(path, bytesToHex(bip39.mnemonicToSeedSync(normalizeMnemonics)));
 
-    return new AptosAccount(key);
+    return new SupraAccount(key);
   }
 
   /**
@@ -84,7 +84,7 @@ export class AptosAccount {
   }
 
   /**
-   * This is the key by which Aptos account is referenced.
+   * This is the key by which Supra account is referenced.
    * It is the 32-byte of the SHA-3 256 cryptographic hash
    * of the public key(s) concatenated with a signature scheme identifier byte
    * @returns Address associated with the given account
@@ -96,7 +96,6 @@ export class AptosAccount {
   /**
    * This key enables account owners to rotate their private key(s)
    * associated with the account without changing the address that hosts their account.
-   * See here for more info: {@link https://aptos.dev/concepts/accounts#single-signer-authentication}
    * @returns Authentication key for the associated account
    */
   @Memoize()
@@ -180,8 +179,8 @@ export class AptosAccount {
 
   /**
    * Derives account address, public key and private key
-   * @returns AptosAccountObject instance.
-   * @example An example of the returned AptosAccountObject object
+   * @returns SupraAccountObject instance.
+   * @example An example of the returned SupraAccountObject object
    * ```
    * {
    *    address: "0xe8012714cd17606cee7188a2a365eef3fe760be598750678c8c5954eb548a591",
@@ -191,7 +190,7 @@ export class AptosAccount {
    * }
    * ```
    */
-  toPrivateKeyObject(): AptosAccountObject {
+  toPrivateKeyObject(): SupraAccountObject {
     return {
       address: this.address().hex(),
       publicKeyHex: this.pubKey().hex(),
@@ -200,7 +199,7 @@ export class AptosAccount {
   }
 }
 
-// Returns an account address as a HexString given either an AptosAccount or a MaybeHexString.
-export function getAddressFromAccountOrAddress(accountOrAddress: AptosAccount | MaybeHexString): HexString {
-  return accountOrAddress instanceof AptosAccount ? accountOrAddress.address() : HexString.ensure(accountOrAddress);
+// Returns an account address as a HexString given either an SupraAccount or a MaybeHexString.
+export function getAddressFromAccountOrAddress(accountOrAddress: SupraAccount | MaybeHexString): HexString {
+  return accountOrAddress instanceof SupraAccount ? accountOrAddress.address() : HexString.ensure(accountOrAddress);
 }

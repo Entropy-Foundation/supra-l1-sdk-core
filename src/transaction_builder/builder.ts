@@ -25,9 +25,9 @@ import {
   TransactionPayloadScript,
   ModuleId,
   TypeTagParser,
-} from "../aptos_types";
+} from "../supra_types";
 import { bcsToBytes, Bytes, Deserializer, Serializer, Uint64, Uint8 } from "../bcs";
-import { ArgumentABI, EntryFunctionABI, ScriptABI, TransactionScriptABI, TypeArgumentABI } from "../aptos_types/abi";
+import { ArgumentABI, EntryFunctionABI, ScriptABI, TransactionScriptABI, TypeArgumentABI } from "../supra_types/abi";
 import { argToTransactionArgument, serializeArg } from "./builder_utils";
 import * as Gen from "../generated/index";
 import {
@@ -38,7 +38,7 @@ import {
   MemoizeExpiring,
 } from "../utils";
 
-export { TypeTagParser } from "../aptos_types";
+export { TypeTagParser } from "../supra_types";
 
 const RAW_TRANSACTION_SALT = "SUPRA::RawTransaction";
 const RAW_TRANSACTION_WITH_DATA_SALT = "SUPRA::RawTransactionWithData";

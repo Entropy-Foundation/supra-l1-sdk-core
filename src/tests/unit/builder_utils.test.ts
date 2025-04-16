@@ -25,7 +25,7 @@ import {
   TypeTagU64,
   TypeTagU8,
   TypeTagVector,
-} from "../../aptos_types";
+} from "../../supra_types";
 import { Serializer } from "../../bcs";
 import {
   argToTransactionArgument,
@@ -34,7 +34,7 @@ import {
   ensureNumber,
   ensureBigInt,
 } from "../../transaction_builder/builder_utils";
-import { stringStructTag } from "../../aptos_types/type_tag";
+import { stringStructTag } from "../../supra_types/type_tag";
 
 describe("BuilderUtils", () => {
   it("parses a bool TypeTag", async () => {

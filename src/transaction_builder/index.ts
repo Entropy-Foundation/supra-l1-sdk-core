@@ -3,4 +3,4 @@
 
 export * from "./builder";
 export * from "./builder_utils";
-export * as TxnBuilderTypes from "../aptos_types";
+export * as TxnBuilderTypes from "../supra_types";
