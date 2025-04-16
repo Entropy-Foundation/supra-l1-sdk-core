@@ -1,1 +1,1 @@
-export * from "./aptos_account";
+export * from "./supra_account";

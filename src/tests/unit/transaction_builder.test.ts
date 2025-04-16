@@ -26,7 +26,7 @@ import {
   TransactionArgumentU256,
   AccountAddress,
   TypeTagBool,
-} from "../../aptos_types";
+} from "../../supra_types";
 
 const ADDRESS_1 = "0x1222";
 const ADDRESS_2 = "0xdd";
