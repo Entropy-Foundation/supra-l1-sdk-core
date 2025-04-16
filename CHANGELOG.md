@@ -6,8 +6,8 @@ All notable changes to the Typescript SDK will be captured in this file. This ch
 
 ## 2.0.0 (2025-4-16)
 
-- Refactor and removed all aptos related components
-- Re-branded types and components to supra such as `AptosAccount` to `SupraAccount`
+- Refactor and remove all Aptos-related components
+- Re-branded types and components to supra, such as `AptosAccount` to `SupraAccount`
 
 ## 1.22.0 (2025-3-3)
 
