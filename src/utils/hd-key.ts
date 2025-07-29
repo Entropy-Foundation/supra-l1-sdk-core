@@ -42,7 +42,10 @@ export const CKDPriv = ({ key, chainCode }: Keys, index: number): Keys => {
   };
 };
 
-export const getPublicKey = (privateKey: Uint8Array, withZeroByte = true): Uint8Array => {
+export const getPublicKey = (
+  privateKey: Uint8Array,
+  withZeroByte = true,
+): Uint8Array => {
   const keyPair = nacl.sign.keyPair.fromSeed(privateKey);
   const signPk = keyPair.secretKey.subarray(32);
   const zero = new Uint8Array([0]);
@@ -60,7 +63,11 @@ export const isValidPath = (path: string): boolean => {
     .some(Number.isNaN as any);
 };
 
-export const derivePath = (path: string, seed: string, offset = HARDENED_OFFSET): Keys => {
+export const derivePath = (
+  path: string,
+  seed: string,
+  offset = HARDENED_OFFSET,
+): Keys => {
   if (!isValidPath(path)) {
     throw new Error("Invalid derivation path");
   }
@@ -72,5 +79,8 @@ export const derivePath = (path: string, seed: string, offset = HARDENED_OFFSET)
     .map(replaceDerive)
     .map((el) => parseInt(el, 10));
 
-  return segments.reduce((parentKeys, segment) => CKDPriv(parentKeys, segment + offset), { key, chainCode });
+  return segments.reduce(
+    (parentKeys, segment) => CKDPriv(parentKeys, segment + offset),
+    { key, chainCode },
+  );
 };

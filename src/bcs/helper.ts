@@ -14,7 +14,7 @@ interface Serializable {
  */
 export function serializeVector<T extends Serializable>(
   value: Seq<T>,
-  serializer: Serializer
+  serializer: Serializer,
 ): void {
   serializer.serializeU32AsUleb128(value.length);
   value.forEach((item: T) => {
@@ -27,7 +27,7 @@ export function serializeVector<T extends Serializable>(
  */
 export function serializeVectorOfBytes(
   value: Seq<Bytes>,
-  serializer: Serializer
+  serializer: Serializer,
 ): void {
   serializer.serializeU32AsUleb128(value.length);
   value.forEach((item: Bytes) => {

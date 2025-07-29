@@ -3,7 +3,12 @@
 
 import { HexString } from "../../utils";
 import { Deserializer, Serializer } from "../../bcs";
-import { ScriptABI, EntryFunctionABI, TransactionScriptABI, ArgumentABI } from "../../supra_types/abi";
+import {
+  ScriptABI,
+  EntryFunctionABI,
+  TransactionScriptABI,
+  ArgumentABI,
+} from "../../supra_types/abi";
 import { TypeTagAddress, TypeTagU64 } from "../../supra_types";
 import { ModuleId } from "../../supra_types";
 
@@ -23,16 +28,31 @@ describe("ABI", () => {
     const doc = " Basic account creation methods.";
     const typeArgABIs = [new ArgumentABI("auth_key", new TypeTagAddress())];
 
-    const abi = new EntryFunctionABI(name, ModuleId.fromStr("0x1::Account"), doc, [], typeArgABIs);
+    const abi = new EntryFunctionABI(
+      name,
+      ModuleId.fromStr("0x1::Account"),
+      doc,
+      [],
+      typeArgABIs,
+    );
     const serializer = new Serializer();
     abi.serialize(serializer);
-    expect(HexString.fromUint8Array(serializer.getBytes()).noPrefix()).toBe(SCRIPT_FUNCTION_ABI.toLowerCase());
+    expect(HexString.fromUint8Array(serializer.getBytes()).noPrefix()).toBe(
+      SCRIPT_FUNCTION_ABI.toLowerCase(),
+    );
 
-    const deserializer = new Deserializer(new HexString(SCRIPT_FUNCTION_ABI).toUint8Array());
-    const entryFunctionABI = ScriptABI.deserialize(deserializer) as EntryFunctionABI;
-    const { address: moduleAddress, name: moduleName } = entryFunctionABI.module_name;
+    const deserializer = new Deserializer(
+      new HexString(SCRIPT_FUNCTION_ABI).toUint8Array(),
+    );
+    const entryFunctionABI = ScriptABI.deserialize(
+      deserializer,
+    ) as EntryFunctionABI;
+    const { address: moduleAddress, name: moduleName } =
+      entryFunctionABI.module_name;
     expect(entryFunctionABI.name).toBe("create_account");
-    expect(HexString.fromUint8Array(moduleAddress.address).toShortString()).toBe("0x1");
+    expect(
+      HexString.fromUint8Array(moduleAddress.address).toShortString(),
+    ).toBe("0x1");
     expect(moduleName.value).toBe("Account");
     expect(entryFunctionABI.doc.trim()).toBe("Basic account creation methods.");
 
@@ -48,17 +68,31 @@ describe("ABI", () => {
       "0xa11ceb0b050000000501000403040a050e0b071924083d200000000101020301000003010400020c0301050001060c0101074163636f756e74065369676e65720a616464726573735f6f66096578697374735f617400000000000000000000000000000000000000000000000000000000000000010000010a0e0011000c020b021101030705090b012702";
     const doc = " A test script.";
     const typeArgABIs = [new ArgumentABI("i", new TypeTagU64())];
-    const abi = new TransactionScriptABI(name, doc, HexString.ensure(code).toUint8Array(), [], typeArgABIs);
+    const abi = new TransactionScriptABI(
+      name,
+      doc,
+      HexString.ensure(code).toUint8Array(),
+      [],
+      typeArgABIs,
+    );
     const serializer = new Serializer();
     abi.serialize(serializer);
-    expect(HexString.fromUint8Array(serializer.getBytes()).noPrefix()).toBe(TRANSACTION_SCRIPT_ABI.toLowerCase());
+    expect(HexString.fromUint8Array(serializer.getBytes()).noPrefix()).toBe(
+      TRANSACTION_SCRIPT_ABI.toLowerCase(),
+    );
 
-    const deserializer = new Deserializer(new HexString(TRANSACTION_SCRIPT_ABI).toUint8Array());
-    const transactionScriptABI = ScriptABI.deserialize(deserializer) as TransactionScriptABI;
+    const deserializer = new Deserializer(
+      new HexString(TRANSACTION_SCRIPT_ABI).toUint8Array(),
+    );
+    const transactionScriptABI = ScriptABI.deserialize(
+      deserializer,
+    ) as TransactionScriptABI;
     expect(transactionScriptABI.name).toBe("main");
     expect(transactionScriptABI.doc.trim()).toBe("A test script.");
 
-    expect(HexString.fromUint8Array(transactionScriptABI.code).hex()).toBe(code);
+    expect(HexString.fromUint8Array(transactionScriptABI.code).hex()).toBe(
+      code,
+    );
 
     const arg = transactionScriptABI.args[0];
     expect(arg.name).toBe("i");

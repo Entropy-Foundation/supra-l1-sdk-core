@@ -36,7 +36,9 @@ export class AuthenticationKey {
    * `auth_key = sha3-256(p_1 | … | p_n | K | 0x01)`. `K` represents the K-of-N required for
    * authenticating the transaction. `0x01` is the 1-byte scheme for multisig.
    */
-  static fromMultiEd25519PublicKey(publicKey: MultiEd25519PublicKey): AuthenticationKey {
+  static fromMultiEd25519PublicKey(
+    publicKey: MultiEd25519PublicKey,
+  ): AuthenticationKey {
     const pubKeyBytes = publicKey.toBytes();
 
     const bytes = new Uint8Array(pubKeyBytes.length + 1);

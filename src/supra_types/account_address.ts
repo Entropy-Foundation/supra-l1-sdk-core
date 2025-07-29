@@ -86,7 +86,9 @@ export class AccountAddress {
   }
 
   static deserialize(deserializer: Deserializer): AccountAddress {
-    return new AccountAddress(deserializer.deserializeFixedBytes(AccountAddress.LENGTH));
+    return new AccountAddress(
+      deserializer.deserializeFixedBytes(AccountAddress.LENGTH),
+    );
   }
 
   /**
@@ -96,7 +98,9 @@ export class AccountAddress {
     // Convert the address to lowercase
     const lowercaseAddress = address.toLowerCase();
     // Remove the "0x" prefix if present
-    const addressWithoutPrefix = lowercaseAddress.startsWith("0x") ? lowercaseAddress.slice(2) : lowercaseAddress;
+    const addressWithoutPrefix = lowercaseAddress.startsWith("0x")
+      ? lowercaseAddress.slice(2)
+      : lowercaseAddress;
     // Pad the address with leading zeros if necessary
     // to ensure it has exactly 64 characters (excluding the "0x" prefix)
     const addressWithPadding = addressWithoutPrefix.padStart(64, "0");

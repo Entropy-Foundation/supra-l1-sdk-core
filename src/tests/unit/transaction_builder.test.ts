@@ -4,10 +4,18 @@
 /* eslint-disable max-len */
 import nacl from "tweetnacl";
 import { bytesToHex, hexToBytes } from "@noble/hashes/utils";
-import { bcsSerializeBool, bcsSerializeUint64, bcsToBytes, Bytes } from "../../bcs";
+import {
+  bcsSerializeBool,
+  bcsSerializeUint64,
+  bcsToBytes,
+  Bytes,
+} from "../../bcs";
 import { HexString } from "../../utils";
 
-import { TransactionBuilderEd25519, TransactionBuilder } from "../../transaction_builder/index";
+import {
+  TransactionBuilderEd25519,
+  TransactionBuilder,
+} from "../../transaction_builder/index";
 import {
   ChainId,
   Ed25519Signature,
@@ -32,7 +40,8 @@ const ADDRESS_1 = "0x1222";
 const ADDRESS_2 = "0xdd";
 const ADDRESS_3 = "0x0a550c18";
 const ADDRESS_4 = "0x01";
-const PRIVATE_KEY = "9bf49a6a0755f953811fce125f2683d50429c3bb49e074147e0089a52eae155f";
+const PRIVATE_KEY =
+  "9bf49a6a0755f953811fce125f2683d50429c3bb49e074147e0089a52eae155f";
 const TXN_EXPIRE = "18446744073709551615";
 
 function hexSignedTxn(signedTxn: Uint8Array): string {
@@ -45,7 +54,10 @@ function sign(rawTxn: RawTransaction): Bytes {
   const { publicKey } = signingKey;
 
   const txnBuilder = new TransactionBuilderEd25519(
-    (signingMessage) => new Ed25519Signature(nacl.sign(signingMessage, signingKey.secretKey).slice(0, 64)),
+    (signingMessage) =>
+      new Ed25519Signature(
+        nacl.sign(signingMessage, signingKey.secretKey).slice(0, 64),
+      ),
     publicKey,
   );
 
@@ -116,7 +128,9 @@ test("serialize entry function payload with no type args", () => {
 });
 
 test("serialize entry function payload with type args", () => {
-  const token = new TypeTagStruct(StructTag.fromString(`${ADDRESS_4}::aptos_coin::AptosCoin`));
+  const token = new TypeTagStruct(
+    StructTag.fromString(`${ADDRESS_4}::aptos_coin::AptosCoin`),
+  );
 
   const entryFunctionPayload = new TransactionPayloadEntryFunction(
     EntryFunction.natural(
@@ -145,7 +159,9 @@ test("serialize entry function payload with type args", () => {
 });
 
 test("serialize entry function payload with type args but no function args", () => {
-  const token = new TypeTagStruct(StructTag.fromString(`${ADDRESS_4}::aptos_coin::AptosCoin`));
+  const token = new TypeTagStruct(
+    StructTag.fromString(`${ADDRESS_4}::aptos_coin::AptosCoin`),
+  );
 
   const entryFunctionPayload = new TransactionPayloadEntryFunction(
     EntryFunction.natural(`${ADDRESS_1}::coin`, "fake_func", [token], []),
@@ -198,9 +214,13 @@ test("serialize entry function payload with generic type args and function args"
 });
 
 test("serialize script payload with no type args and no function args", () => {
-  const script = hexToBytes("a11ceb0b030000000105000100000000050601000000000000000600000000000000001a0102");
+  const script = hexToBytes(
+    "a11ceb0b030000000105000100000000050601000000000000000600000000000000001a0102",
+  );
 
-  const scriptPayload = new TransactionPayloadScript(new Script(script, [], []));
+  const scriptPayload = new TransactionPayloadScript(
+    new Script(script, [], []),
+  );
 
   const rawTxn = new RawTransaction(
     AccountAddress.fromHex(ADDRESS_3),
@@ -220,11 +240,17 @@ test("serialize script payload with no type args and no function args", () => {
 });
 
 test("serialize script payload with type args but no function args", () => {
-  const token = new TypeTagStruct(StructTag.fromString(`${ADDRESS_4}::aptos_coin::AptosCoin`));
+  const token = new TypeTagStruct(
+    StructTag.fromString(`${ADDRESS_4}::aptos_coin::AptosCoin`),
+  );
 
-  const script = hexToBytes("a11ceb0b030000000105000100000000050601000000000000000600000000000000001a0102");
+  const script = hexToBytes(
+    "a11ceb0b030000000105000100000000050601000000000000000600000000000000001a0102",
+  );
 
-  const scriptPayload = new TransactionPayloadScript(new Script(script, [token], []));
+  const scriptPayload = new TransactionPayloadScript(
+    new Script(script, [token], []),
+  );
 
   const rawTxn = new RawTransaction(
     AccountAddress.fromHex(ADDRESS_3),
@@ -244,13 +270,19 @@ test("serialize script payload with type args but no function args", () => {
 });
 
 test("serialize script payload with type arg and function arg", () => {
-  const token = new TypeTagStruct(StructTag.fromString(`${ADDRESS_4}::aptos_coin::AptosCoin`));
+  const token = new TypeTagStruct(
+    StructTag.fromString(`${ADDRESS_4}::aptos_coin::AptosCoin`),
+  );
 
   const argU8 = new TransactionArgumentU8(2);
 
-  const script = hexToBytes("a11ceb0b030000000105000100000000050601000000000000000600000000000000001a0102");
+  const script = hexToBytes(
+    "a11ceb0b030000000105000100000000050601000000000000000600000000000000001a0102",
+  );
 
-  const scriptPayload = new TransactionPayloadScript(new Script(script, [token], [argU8]));
+  const scriptPayload = new TransactionPayloadScript(
+    new Script(script, [token], [argU8]),
+  );
   const rawTxn = new RawTransaction(
     AccountAddress.fromHex(ADDRESS_3),
     BigInt(0),
@@ -269,14 +301,22 @@ test("serialize script payload with type arg and function arg", () => {
 });
 
 test("serialize script payload with one type arg and two function args", () => {
-  const token = new TypeTagStruct(StructTag.fromString(`${ADDRESS_4}::aptos_coin::AptosCoin`));
+  const token = new TypeTagStruct(
+    StructTag.fromString(`${ADDRESS_4}::aptos_coin::AptosCoin`),
+  );
 
   const argU8Vec = new TransactionArgumentU8Vector(bcsSerializeUint64(1));
-  const argAddress = new TransactionArgumentAddress(AccountAddress.fromHex("0x01"));
+  const argAddress = new TransactionArgumentAddress(
+    AccountAddress.fromHex("0x01"),
+  );
 
-  const script = hexToBytes("a11ceb0b030000000105000100000000050601000000000000000600000000000000001a0102");
+  const script = hexToBytes(
+    "a11ceb0b030000000105000100000000050601000000000000000600000000000000001a0102",
+  );
 
-  const scriptPayload = new TransactionPayloadScript(new Script(script, [token], [argU8Vec, argAddress]));
+  const scriptPayload = new TransactionPayloadScript(
+    new Script(script, [token], [argU8Vec, argAddress]),
+  );
 
   const rawTxn = new RawTransaction(
     AccountAddress.fromHex(ADDRESS_3),
@@ -299,12 +339,16 @@ test("serialize script payload with new integer types (u16, u32, u256) as args",
   const argU16 = new TransactionArgumentU16(0xf111);
   const argU32 = new TransactionArgumentU32(0xf1111111);
   const argU256 = new TransactionArgumentU256(
-    BigInt("0xf111111111111111111111111111111111111111111111111111111111111111"),
+    BigInt(
+      "0xf111111111111111111111111111111111111111111111111111111111111111",
+    ),
   );
 
   const script = hexToBytes("");
 
-  const scriptPayload = new TransactionPayloadScript(new Script(script, [], [argU16, argU32, argU256]));
+  const scriptPayload = new TransactionPayloadScript(
+    new Script(script, [], [argU16, argU32, argU256]),
+  );
 
   const rawTxn = new RawTransaction(
     AccountAddress.fromHex(ADDRESS_3),

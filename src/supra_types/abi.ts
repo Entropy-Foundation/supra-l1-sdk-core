@@ -1,7 +1,14 @@
 // Copyright © Aptos Foundation
 // SPDX-License-Identifier: Apache-2.0
 
-import { Deserializer, Serializer, Bytes, Seq, deserializeVector, serializeVector } from "../bcs";
+import {
+  Deserializer,
+  Serializer,
+  Bytes,
+  Seq,
+  deserializeVector,
+  serializeVector,
+} from "../bcs";
 
 import { ModuleId } from "./transaction";
 
@@ -58,7 +65,9 @@ export abstract class ScriptABI {
       case 1:
         return EntryFunctionABI.load(deserializer);
       default:
-        throw new Error(`Unknown variant index for TransactionPayload: ${index}`);
+        throw new Error(
+          `Unknown variant index for TransactionPayload: ${index}`,
+        );
     }
   }
 }

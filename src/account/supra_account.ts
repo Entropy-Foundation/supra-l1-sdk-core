@@ -9,7 +9,11 @@ import { sha3_256 as sha3Hash } from "@noble/hashes/sha3";
 import { derivePath } from "../utils/hd-key";
 import { HexString, MaybeHexString, Memoize } from "../utils";
 import * as Gen from "../generated/index";
-import { AccountAddress, AuthenticationKey, Ed25519PublicKey } from "../supra_types";
+import {
+  AccountAddress,
+  AuthenticationKey,
+  Ed25519PublicKey,
+} from "../supra_types";
 import { bcsToBytes } from "../bcs";
 
 export interface SupraAccountObject {
@@ -33,7 +37,10 @@ export class SupraAccount {
   private readonly accountAddress: HexString;
 
   static fromSupraAccountObject(obj: SupraAccountObject): SupraAccount {
-    return new SupraAccount(HexString.ensure(obj.privateKeyHex).toUint8Array(), obj.address);
+    return new SupraAccount(
+      HexString.ensure(obj.privateKeyHex).toUint8Array(),
+      obj.address,
+    );
   }
 
   /**
@@ -61,7 +68,10 @@ export class SupraAccount {
       .map((part) => part.toLowerCase())
       .join(" ");
 
-    const { key } = derivePath(path, bytesToHex(bip39.mnemonicToSeedSync(normalizeMnemonics)));
+    const { key } = derivePath(
+      path,
+      bytesToHex(bip39.mnemonicToSeedSync(normalizeMnemonics)),
+    );
 
     return new SupraAccount(key);
   }
@@ -74,9 +84,14 @@ export class SupraAccount {
    * @param address Account address (e.g. 0xe8012714cd17606cee7188a2a365eef3fe760be598750678c8c5954eb548a591).
    * If not specified, a new one will be generated from public key
    */
-  constructor(privateKeyBytes?: Uint8Array | undefined, address?: MaybeHexString) {
+  constructor(
+    privateKeyBytes?: Uint8Array | undefined,
+    address?: MaybeHexString,
+  ) {
     if (privateKeyBytes) {
-      this.signingKey = nacl.sign.keyPair.fromSeed(privateKeyBytes.slice(0, 32));
+      this.signingKey = nacl.sign.keyPair.fromSeed(
+        privateKeyBytes.slice(0, 32),
+      );
     } else {
       this.signingKey = nacl.sign.keyPair();
     }
@@ -111,10 +126,17 @@ export class SupraAccount {
    * @param seed The seed bytes
    * @returns The resource account address
    */
-  static getResourceAccountAddress(sourceAddress: MaybeHexString, seed: Uint8Array): HexString {
+  static getResourceAccountAddress(
+    sourceAddress: MaybeHexString,
+    seed: Uint8Array,
+  ): HexString {
     const source = bcsToBytes(AccountAddress.fromHex(sourceAddress));
 
-    const bytes = new Uint8Array([...source, ...seed, AuthenticationKey.DERIVE_RESOURCE_ACCOUNT_SCHEME]);
+    const bytes = new Uint8Array([
+      ...source,
+      ...seed,
+      AuthenticationKey.DERIVE_RESOURCE_ACCOUNT_SCHEME,
+    ]);
 
     const hash = sha3Hash.create();
     hash.update(bytes);
@@ -130,8 +152,13 @@ export class SupraAccount {
    * @param collectionName The collection name
    * @returns The collection id hash
    */
-  static getCollectionID(creatorAddress: MaybeHexString, collectionName: string): HexString {
-    const seed = new TextEncoder().encode(`${creatorAddress}::${collectionName}`);
+  static getCollectionID(
+    creatorAddress: MaybeHexString,
+    collectionName: string,
+  ): HexString {
+    const seed = new TextEncoder().encode(
+      `${creatorAddress}::${collectionName}`,
+    );
     const hash = sha256.create();
     hash.update(seed);
     return HexString.fromUint8Array(hash.digest());
@@ -174,7 +201,11 @@ export class SupraAccount {
   verifySignature(message: MaybeHexString, signature: MaybeHexString): boolean {
     const rawMessage = HexString.ensure(message).toUint8Array();
     const rawSignature = HexString.ensure(signature).toUint8Array();
-    return nacl.sign.detached.verify(rawMessage, rawSignature, this.signingKey.publicKey);
+    return nacl.sign.detached.verify(
+      rawMessage,
+      rawSignature,
+      this.signingKey.publicKey,
+    );
   }
 
   /**
@@ -194,12 +225,18 @@ export class SupraAccount {
     return {
       address: this.address().hex(),
       publicKeyHex: this.pubKey().hex(),
-      privateKeyHex: HexString.fromUint8Array(this.signingKey.secretKey.slice(0, 32)).hex(),
+      privateKeyHex: HexString.fromUint8Array(
+        this.signingKey.secretKey.slice(0, 32),
+      ).hex(),
     };
   }
 }
 
 // Returns an account address as a HexString given either an SupraAccount or a MaybeHexString.
-export function getAddressFromAccountOrAddress(accountOrAddress: SupraAccount | MaybeHexString): HexString {
-  return accountOrAddress instanceof SupraAccount ? accountOrAddress.address() : HexString.ensure(accountOrAddress);
+export function getAddressFromAccountOrAddress(
+  accountOrAddress: SupraAccount | MaybeHexString,
+): HexString {
+  return accountOrAddress instanceof SupraAccount
+    ? accountOrAddress.address()
+    : HexString.ensure(accountOrAddress);
 }
