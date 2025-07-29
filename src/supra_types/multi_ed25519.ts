@@ -25,7 +25,9 @@ export class MultiEd25519PublicKey {
     public readonly threshold: Uint8,
   ) {
     if (threshold > MAX_SIGNATURES_SUPPORTED) {
-      throw new Error(`"threshold" cannot be larger than ${MAX_SIGNATURES_SUPPORTED}`);
+      throw new Error(
+        `"threshold" cannot be larger than ${MAX_SIGNATURES_SUPPORTED}`,
+      );
     }
   }
 
@@ -33,7 +35,9 @@ export class MultiEd25519PublicKey {
    * Converts a MultiEd25519PublicKey into bytes with: bytes = p1_bytes | ... | pn_bytes | threshold
    */
   toBytes(): Bytes {
-    const bytes = new Uint8Array(this.public_keys.length * Ed25519PublicKey.LENGTH + 1);
+    const bytes = new Uint8Array(
+      this.public_keys.length * Ed25519PublicKey.LENGTH + 1,
+    );
     this.public_keys.forEach((k: Ed25519PublicKey, i: number) => {
       bytes.set(k.value, i * Ed25519PublicKey.LENGTH);
     });
@@ -55,7 +59,11 @@ export class MultiEd25519PublicKey {
 
     for (let i = 0; i < bytes.length - 1; i += Ed25519PublicKey.LENGTH) {
       const begin = i;
-      keys.push(new Ed25519PublicKey(bytes.subarray(begin, begin + Ed25519PublicKey.LENGTH)));
+      keys.push(
+        new Ed25519PublicKey(
+          bytes.subarray(begin, begin + Ed25519PublicKey.LENGTH),
+        ),
+      );
     }
     return new MultiEd25519PublicKey(keys, threshold);
   }
@@ -77,7 +85,9 @@ export class MultiEd25519Signature {
     public readonly bitmap: Uint8Array,
   ) {
     if (bitmap.length !== MultiEd25519Signature.BITMAP_LEN) {
-      throw new Error(`"bitmap" length should be ${MultiEd25519Signature.BITMAP_LEN}`);
+      throw new Error(
+        `"bitmap" length should be ${MultiEd25519Signature.BITMAP_LEN}`,
+      );
     }
   }
 
@@ -85,7 +95,10 @@ export class MultiEd25519Signature {
    * Converts a MultiEd25519Signature into bytes with `bytes = s1_bytes | ... | sn_bytes | bitmap`
    */
   toBytes(): Bytes {
-    const bytes = new Uint8Array(this.signatures.length * Ed25519Signature.LENGTH + MultiEd25519Signature.BITMAP_LEN);
+    const bytes = new Uint8Array(
+      this.signatures.length * Ed25519Signature.LENGTH +
+        MultiEd25519Signature.BITMAP_LEN,
+    );
     this.signatures.forEach((k: Ed25519Signature, i: number) => {
       bytes.set(k.value, i * Ed25519Signature.LENGTH);
     });
@@ -151,9 +164,17 @@ export class MultiEd25519Signature {
 
     const sigs: Seq<Ed25519Signature> = [];
 
-    for (let i = 0; i < bytes.length - bitmap.length; i += Ed25519Signature.LENGTH) {
+    for (
+      let i = 0;
+      i < bytes.length - bitmap.length;
+      i += Ed25519Signature.LENGTH
+    ) {
       const begin = i;
-      sigs.push(new Ed25519Signature(bytes.subarray(begin, begin + Ed25519Signature.LENGTH)));
+      sigs.push(
+        new Ed25519Signature(
+          bytes.subarray(begin, begin + Ed25519Signature.LENGTH),
+        ),
+      );
     }
     return new MultiEd25519Signature(sigs, bitmap);
   }

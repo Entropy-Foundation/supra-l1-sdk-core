@@ -3,7 +3,8 @@
 
 import { AccountAddress } from "../../supra_types";
 
-const ADDRESS_LONG = "000000000000000000000000000000000000000000000000000000000a550c18";
+const ADDRESS_LONG =
+  "000000000000000000000000000000000000000000000000000000000a550c18";
 const ADDRESS_SHORT = "a550c18";
 
 describe("AccountAddress", () => {
@@ -79,10 +80,14 @@ describe("AccountAddress", () => {
   });
 
   it("standardize address", () => {
-    const validAddress = "0x08743724fea179336994e9a66cff08676e3be6f8b227450cb3148288ba20a2e5";
+    const validAddress =
+      "0x08743724fea179336994e9a66cff08676e3be6f8b227450cb3148288ba20a2e5";
     expect(AccountAddress.standardizeAddress(validAddress)).toBe(validAddress);
 
-    const invalidAddress = "0x8743724fea179336994e9a66cff08676e3be6f8b227450cb3148288ba20a2e5";
-    expect(AccountAddress.standardizeAddress(invalidAddress)).toBe(validAddress);
+    const invalidAddress =
+      "0x8743724fea179336994e9a66cff08676e3be6f8b227450cb3148288ba20a2e5";
+    expect(AccountAddress.standardizeAddress(invalidAddress)).toBe(
+      validAddress,
+    );
   });
 });

@@ -224,13 +224,24 @@ export class Serializer {
  * @param maxValue The arg value of decorated function must <= maxValue
  * @param message Error message
  */
-function checkNumberRange<T extends AnyNumber>(minValue: T, maxValue: T, message?: string) {
-  return (target: unknown, propertyKey: string, descriptor: PropertyDescriptor) => {
+function checkNumberRange<T extends AnyNumber>(
+  minValue: T,
+  maxValue: T,
+  message?: string,
+) {
+  return (
+    target: unknown,
+    propertyKey: string,
+    descriptor: PropertyDescriptor,
+  ) => {
     const childFunction = descriptor.value;
     // eslint-disable-next-line no-param-reassign
     descriptor.value = function deco(value: AnyNumber) {
       const valueBigInt = BigInt(value.toString());
-      if (valueBigInt > BigInt(maxValue.toString()) || valueBigInt < BigInt(minValue.toString())) {
+      if (
+        valueBigInt > BigInt(maxValue.toString()) ||
+        valueBigInt < BigInt(minValue.toString())
+      ) {
         throw new Error(message || "Value is out of range");
       }
       childFunction.apply(this, [value]);

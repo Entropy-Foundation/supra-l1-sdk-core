@@ -19,7 +19,8 @@ import {
 import { Deserializer, Serializer } from "../../bcs";
 
 const expectedTypeTag = {
-  string: "0x0000000000000000000000000000000000000000000000000000000000000001::some_module::SomeResource",
+  string:
+    "0x0000000000000000000000000000000000000000000000000000000000000001::some_module::SomeResource",
   address: "0x0000000000000000000000000000000000000000000000000000000000000001",
   module_name: "some_module",
   name: "SomeResource",
@@ -46,8 +47,12 @@ describe("StructTag", () => {
     // make sure the nested type tag is correct
     for (const typeArg of structTag.type_args) {
       const nestedTypeTag = typeArg as TypeTagStruct;
-      expect(nestedTypeTag.value.address.toHexString()).toEqual(expectedTypeTag.address);
-      expect(nestedTypeTag.value.module_name.value).toEqual(expectedTypeTag.module_name);
+      expect(nestedTypeTag.value.address.toHexString()).toEqual(
+        expectedTypeTag.address,
+      );
+      expect(nestedTypeTag.value.module_name.value).toEqual(
+        expectedTypeTag.module_name,
+      );
       expect(nestedTypeTag.value.name.value).toEqual(expectedTypeTag.name);
       expect(nestedTypeTag.value.type_args.length).toEqual(0);
     }
@@ -69,7 +74,7 @@ describe("TypeTagParser", () => {
 
     typeTag = "0x1::some_module::SomeResource<0x1>";
     parser = new TypeTagParser(typeTag);
-    expect(() => parser.parseTypeTag()).toThrowError("Invalid type tag.");
+    expect(() => parser.parseTypeTag()).toThrow("Invalid type tag.");
   });
 
   test("make sure parseTypeTag works with un-nested type tag", () => {
@@ -82,7 +87,8 @@ describe("TypeTagParser", () => {
   });
 
   test("make sure parseTypeTag works with nested type tag", () => {
-    const typeTag = "0x1::some_module::SomeResource<0x1::some_module::SomeResource, 0x1::some_module::SomeResource>";
+    const typeTag =
+      "0x1::some_module::SomeResource<0x1::some_module::SomeResource, 0x1::some_module::SomeResource>";
     const parser = new TypeTagParser(typeTag);
     const result = parser.parseTypeTag() as TypeTagStruct;
     expect(result.value.address.toHexString()).toEqual(expectedTypeTag.address);
@@ -93,8 +99,12 @@ describe("TypeTagParser", () => {
     // make sure the nested type tag is correct
     for (const typeArg of result.value.type_args) {
       const nestedTypeTag = typeArg as TypeTagStruct;
-      expect(nestedTypeTag.value.address.toHexString()).toEqual(expectedTypeTag.address);
-      expect(nestedTypeTag.value.module_name.value).toEqual(expectedTypeTag.module_name);
+      expect(nestedTypeTag.value.address.toHexString()).toEqual(
+        expectedTypeTag.address,
+      );
+      expect(nestedTypeTag.value.module_name.value).toEqual(
+        expectedTypeTag.module_name,
+      );
       expect(nestedTypeTag.value.name.value).toEqual(expectedTypeTag.name);
       expect(nestedTypeTag.value.type_args.length).toEqual(0);
     }
@@ -123,7 +133,7 @@ describe("TypeTagParser", () => {
     test("TypeTagParser does not parse unofficial objects", () => {
       const typeTag = "0x12345::object::Object<T>";
       const parser = new TypeTagParser(typeTag);
-      expect(() => parser.parseTypeTag()).toThrowError("Invalid type tag.");
+      expect(() => parser.parseTypeTag()).toThrow("Invalid type tag.");
     });
 
     test("TypeTagParser successfully parses an Option type", () => {
@@ -142,17 +152,22 @@ describe("TypeTagParser", () => {
       const typeTag = "0x1::some_module::SomeResource<0x1::object::Object<T>>";
       const parser = new TypeTagParser(typeTag);
       const result = parser.parseTypeTag() as TypeTagStruct;
-      expect(result.value.address.toHexString()).toEqual(expectedTypeTag.address);
+      expect(result.value.address.toHexString()).toEqual(
+        expectedTypeTag.address,
+      );
       expect(result.value.module_name.value).toEqual("some_module");
       expect(result.value.name.value).toEqual("SomeResource");
       expect(result.value.type_args[0] instanceof TypeTagAddress).toBeTruthy();
     });
 
     test("TypeTagParser successfully parses a struct with a nested Object and Struct types", () => {
-      const typeTag = "0x1::some_module::SomeResource<0x1::object::Object<T>, 0x1::some_module::SomeResource>";
+      const typeTag =
+        "0x1::some_module::SomeResource<0x1::object::Object<T>, 0x1::some_module::SomeResource>";
       const parser = new TypeTagParser(typeTag);
       const result = parser.parseTypeTag() as TypeTagStruct;
-      expect(result.value.address.toHexString()).toEqual(expectedTypeTag.address);
+      expect(result.value.address.toHexString()).toEqual(
+        expectedTypeTag.address,
+      );
       expect(result.value.module_name.value).toEqual("some_module");
       expect(result.value.name.value).toEqual("SomeResource");
       expect(result.value.type_args.length).toEqual(2);
@@ -167,7 +182,9 @@ describe("TypeTagParser", () => {
       const parser = new TypeTagParser(typeTag);
       expect(() => {
         parser.parseTypeTag();
-      }).toThrow("Can't convert generic type since no typeTags were specified.");
+      }).toThrow(
+        "Can't convert generic type since no typeTags were specified.",
+      );
     });
 
     test("successfully parses a generic type tag to the provided type", () => {
@@ -186,7 +203,9 @@ describe("Deserialize TypeTags", () => {
 
     tag.serialize(serializer);
 
-    expect(TypeTag.deserialize(new Deserializer(serializer.getBytes()))).toBeInstanceOf(TypeTagBool);
+    expect(
+      TypeTag.deserialize(new Deserializer(serializer.getBytes())),
+    ).toBeInstanceOf(TypeTagBool);
   });
 
   test("deserializes a TypeTagU8 correctly", () => {
@@ -195,7 +214,9 @@ describe("Deserialize TypeTags", () => {
 
     tag.serialize(serializer);
 
-    expect(TypeTag.deserialize(new Deserializer(serializer.getBytes()))).toBeInstanceOf(TypeTagU8);
+    expect(
+      TypeTag.deserialize(new Deserializer(serializer.getBytes())),
+    ).toBeInstanceOf(TypeTagU8);
   });
 
   test("deserializes a TypeTagU16 correctly", () => {
@@ -204,7 +225,9 @@ describe("Deserialize TypeTags", () => {
 
     tag.serialize(serializer);
 
-    expect(TypeTag.deserialize(new Deserializer(serializer.getBytes()))).toBeInstanceOf(TypeTagU16);
+    expect(
+      TypeTag.deserialize(new Deserializer(serializer.getBytes())),
+    ).toBeInstanceOf(TypeTagU16);
   });
 
   test("deserializes a TypeTagU32 correctly", () => {
@@ -213,7 +236,9 @@ describe("Deserialize TypeTags", () => {
 
     tag.serialize(serializer);
 
-    expect(TypeTag.deserialize(new Deserializer(serializer.getBytes()))).toBeInstanceOf(TypeTagU32);
+    expect(
+      TypeTag.deserialize(new Deserializer(serializer.getBytes())),
+    ).toBeInstanceOf(TypeTagU32);
   });
 
   test("deserializes a TypeTagU64 correctly", () => {
@@ -222,7 +247,9 @@ describe("Deserialize TypeTags", () => {
 
     tag.serialize(serializer);
 
-    expect(TypeTag.deserialize(new Deserializer(serializer.getBytes()))).toBeInstanceOf(TypeTagU64);
+    expect(
+      TypeTag.deserialize(new Deserializer(serializer.getBytes())),
+    ).toBeInstanceOf(TypeTagU64);
   });
 
   test("deserializes a TypeTagU128 correctly", () => {
@@ -231,7 +258,9 @@ describe("Deserialize TypeTags", () => {
 
     tag.serialize(serializer);
 
-    expect(TypeTag.deserialize(new Deserializer(serializer.getBytes()))).toBeInstanceOf(TypeTagU128);
+    expect(
+      TypeTag.deserialize(new Deserializer(serializer.getBytes())),
+    ).toBeInstanceOf(TypeTagU128);
   });
 
   test("deserializes a TypeTagU256 correctly", () => {
@@ -240,7 +269,9 @@ describe("Deserialize TypeTags", () => {
 
     tag.serialize(serializer);
 
-    expect(TypeTag.deserialize(new Deserializer(serializer.getBytes()))).toBeInstanceOf(TypeTagU256);
+    expect(
+      TypeTag.deserialize(new Deserializer(serializer.getBytes())),
+    ).toBeInstanceOf(TypeTagU256);
   });
 
   test("deserializes a TypeTagAddress correctly", () => {
@@ -249,7 +280,9 @@ describe("Deserialize TypeTags", () => {
 
     tag.serialize(serializer);
 
-    expect(TypeTag.deserialize(new Deserializer(serializer.getBytes()))).toBeInstanceOf(TypeTagAddress);
+    expect(
+      TypeTag.deserialize(new Deserializer(serializer.getBytes())),
+    ).toBeInstanceOf(TypeTagAddress);
   });
 
   test("deserializes a TypeTagSigner correctly", () => {
@@ -258,7 +291,9 @@ describe("Deserialize TypeTags", () => {
 
     tag.serialize(serializer);
 
-    expect(TypeTag.deserialize(new Deserializer(serializer.getBytes()))).toBeInstanceOf(TypeTagSigner);
+    expect(
+      TypeTag.deserialize(new Deserializer(serializer.getBytes())),
+    ).toBeInstanceOf(TypeTagSigner);
   });
 
   test("deserializes a TypeTagVector correctly", () => {
@@ -266,7 +301,9 @@ describe("Deserialize TypeTags", () => {
     const tag = new TypeTagVector(new TypeTagU32());
 
     tag.serialize(serializer);
-    const deserialized = TypeTag.deserialize(new Deserializer(serializer.getBytes())) as TypeTagVector;
+    const deserialized = TypeTag.deserialize(
+      new Deserializer(serializer.getBytes()),
+    ) as TypeTagVector;
     expect(deserialized).toBeInstanceOf(TypeTagVector);
     expect(deserialized.value).toBeInstanceOf(TypeTagU32);
   });
@@ -276,10 +313,14 @@ describe("Deserialize TypeTags", () => {
     const tag = new TypeTagStruct(StructTag.fromString(expectedTypeTag.string));
 
     tag.serialize(serializer);
-    const deserialized = TypeTag.deserialize(new Deserializer(serializer.getBytes())) as TypeTagStruct;
+    const deserialized = TypeTag.deserialize(
+      new Deserializer(serializer.getBytes()),
+    ) as TypeTagStruct;
     expect(deserialized).toBeInstanceOf(TypeTagStruct);
     expect(deserialized.value).toBeInstanceOf(StructTag);
-    expect(deserialized.value.address.toHexString()).toEqual(expectedTypeTag.address);
+    expect(deserialized.value.address.toHexString()).toEqual(
+      expectedTypeTag.address,
+    );
     expect(deserialized.value.module_name.value).toEqual("some_module");
     expect(deserialized.value.name.value).toEqual("SomeResource");
     expect(deserialized.value.type_args.length).toEqual(0);

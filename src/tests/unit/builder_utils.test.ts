@@ -38,50 +38,77 @@ import { stringStructTag } from "../../supra_types/type_tag";
 
 describe("BuilderUtils", () => {
   it("parses a bool TypeTag", async () => {
-    expect(new TypeTagParser("bool").parseTypeTag() instanceof TypeTagBool).toBeTruthy();
+    expect(
+      new TypeTagParser("bool").parseTypeTag() instanceof TypeTagBool,
+    ).toBeTruthy();
   });
 
   it("parses a u8 TypeTag", async () => {
-    expect(new TypeTagParser("u8").parseTypeTag() instanceof TypeTagU8).toBeTruthy();
+    expect(
+      new TypeTagParser("u8").parseTypeTag() instanceof TypeTagU8,
+    ).toBeTruthy();
   });
 
   it("parses a u16 TypeTag", async () => {
-    expect(new TypeTagParser("u16").parseTypeTag() instanceof TypeTagU16).toBeTruthy();
+    expect(
+      new TypeTagParser("u16").parseTypeTag() instanceof TypeTagU16,
+    ).toBeTruthy();
   });
 
   it("parses a u32 TypeTag", async () => {
-    expect(new TypeTagParser("u32").parseTypeTag() instanceof TypeTagU32).toBeTruthy();
+    expect(
+      new TypeTagParser("u32").parseTypeTag() instanceof TypeTagU32,
+    ).toBeTruthy();
   });
 
   it("parses a u64 TypeTag", async () => {
-    expect(new TypeTagParser("u64").parseTypeTag() instanceof TypeTagU64).toBeTruthy();
+    expect(
+      new TypeTagParser("u64").parseTypeTag() instanceof TypeTagU64,
+    ).toBeTruthy();
   });
 
   it("parses a u128 TypeTag", async () => {
-    expect(new TypeTagParser("u128").parseTypeTag() instanceof TypeTagU128).toBeTruthy();
+    expect(
+      new TypeTagParser("u128").parseTypeTag() instanceof TypeTagU128,
+    ).toBeTruthy();
   });
 
   it("parses a u256 TypeTag", async () => {
-    expect(new TypeTagParser("u256").parseTypeTag() instanceof TypeTagU256).toBeTruthy();
+    expect(
+      new TypeTagParser("u256").parseTypeTag() instanceof TypeTagU256,
+    ).toBeTruthy();
   });
 
   it("parses a address TypeTag", async () => {
-    expect(new TypeTagParser("address").parseTypeTag() instanceof TypeTagAddress).toBeTruthy();
+    expect(
+      new TypeTagParser("address").parseTypeTag() instanceof TypeTagAddress,
+    ).toBeTruthy();
   });
 
   it("parses a vector TypeTag", async () => {
     const vectorAddress = new TypeTagParser("vector<address>").parseTypeTag();
     expect(vectorAddress instanceof TypeTagVector).toBeTruthy();
-    expect((vectorAddress as TypeTagVector).value instanceof TypeTagAddress).toBeTruthy();
+    expect(
+      (vectorAddress as TypeTagVector).value instanceof TypeTagAddress,
+    ).toBeTruthy();
 
     const vectorU64 = new TypeTagParser(" vector < u64 > ").parseTypeTag();
     expect(vectorU64 instanceof TypeTagVector).toBeTruthy();
-    expect((vectorU64 as TypeTagVector).value instanceof TypeTagU64).toBeTruthy();
+    expect(
+      (vectorU64 as TypeTagVector).value instanceof TypeTagU64,
+    ).toBeTruthy();
   });
 
   it("parses a struct TypeTag", async () => {
-    const assertStruct = (struct: TypeTagStruct, accountAddress: string, moduleName: string, structName: string) => {
-      expect(HexString.fromUint8Array(struct.value.address.address).toShortString()).toBe(accountAddress);
+    const assertStruct = (
+      struct: TypeTagStruct,
+      accountAddress: string,
+      moduleName: string,
+      structName: string,
+    ) => {
+      expect(
+        HexString.fromUint8Array(struct.value.address.address).toShortString(),
+      ).toBe(accountAddress);
       expect(struct.value.module_name.value).toBe(moduleName);
       expect(struct.value.name.value).toBe(structName);
     };
@@ -99,16 +126,31 @@ describe("BuilderUtils", () => {
       "0x1::coin::CoinStore < 0x1::test_coin::AptosCoin1 ,  0x1::test_coin::AptosCoin2, > ",
     ).parseTypeTag();
     expect(aptosCoinTrailingComma instanceof TypeTagStruct).toBeTruthy();
-    assertStruct(aptosCoinTrailingComma as TypeTagStruct, "0x1", "coin", "CoinStore");
+    assertStruct(
+      aptosCoinTrailingComma as TypeTagStruct,
+      "0x1",
+      "coin",
+      "CoinStore",
+    );
 
     const structTypeTags = (aptosCoin as TypeTagStruct).value.type_args;
     expect(structTypeTags.length).toBe(2);
 
     const structTypeTag1 = structTypeTags[0];
-    assertStruct(structTypeTag1 as TypeTagStruct, "0x1", "test_coin", "AptosCoin1");
+    assertStruct(
+      structTypeTag1 as TypeTagStruct,
+      "0x1",
+      "test_coin",
+      "AptosCoin1",
+    );
 
     const structTypeTag2 = structTypeTags[1];
-    assertStruct(structTypeTag2 as TypeTagStruct, "0x1", "test_coin", "AptosCoin2");
+    assertStruct(
+      structTypeTag2 as TypeTagStruct,
+      "0x1",
+      "test_coin",
+      "AptosCoin2",
+    );
 
     const coinComplex = new TypeTagParser(
       // eslint-disable-next-line max-len
@@ -117,7 +159,8 @@ describe("BuilderUtils", () => {
 
     expect(coinComplex instanceof TypeTagStruct).toBeTruthy();
     assertStruct(coinComplex as TypeTagStruct, "0x1", "coin", "CoinStore");
-    const coinComplexTypeTag = (coinComplex as TypeTagStruct).value.type_args[0];
+    const coinComplexTypeTag = (coinComplex as TypeTagStruct).value
+      .type_args[0];
     assertStruct(coinComplexTypeTag as TypeTagStruct, "0x2", "coin", "LPCoin");
 
     expect(() => {
@@ -125,11 +168,15 @@ describe("BuilderUtils", () => {
     }).toThrow("Invalid type tag.");
 
     expect(() => {
-      new TypeTagParser("0x1::test_coin::CoinStore<0x1::test_coin::AptosCoin").parseTypeTag();
+      new TypeTagParser(
+        "0x1::test_coin::CoinStore<0x1::test_coin::AptosCoin",
+      ).parseTypeTag();
     }).toThrow("Invalid type tag.");
 
     expect(() => {
-      new TypeTagParser("0x1::test_coin::CoinStore<0x1::test_coin>").parseTypeTag();
+      new TypeTagParser(
+        "0x1::test_coin::CoinStore<0x1::test_coin>",
+      ).parseTypeTag();
     }).toThrow("Invalid type tag.");
 
     expect(() => {
@@ -145,7 +192,9 @@ describe("BuilderUtils", () => {
     }).toThrow("Invalid type tag.");
 
     expect(() => {
-      new TypeTagParser("0x1::test_coin::CoinStore<0x1::test_coin::AptosCoin,").parseTypeTag();
+      new TypeTagParser(
+        "0x1::test_coin::CoinStore<0x1::test_coin::AptosCoin,",
+      ).parseTypeTag();
     }).toThrow("Invalid type tag.");
 
     expect(() => {
@@ -153,11 +202,15 @@ describe("BuilderUtils", () => {
     }).toThrow("Invalid type tag.");
 
     expect(() => {
-      new TypeTagParser("0x1::<::CoinStore<0x1::test_coin::AptosCoin,").parseTypeTag();
+      new TypeTagParser(
+        "0x1::<::CoinStore<0x1::test_coin::AptosCoin,",
+      ).parseTypeTag();
     }).toThrow("Invalid type tag.");
 
     expect(() => {
-      new TypeTagParser("0x1::test_coin::><0x1::test_coin::AptosCoin,").parseTypeTag();
+      new TypeTagParser(
+        "0x1::test_coin::><0x1::test_coin::AptosCoin,",
+      ).parseTypeTag();
     }).toThrow("Invalid type tag.");
 
     expect(() => {
@@ -207,7 +260,9 @@ describe("BuilderUtils", () => {
   it("serializes a u32 arg", async () => {
     let serializer = new Serializer();
     serializeArg(0x01020304, new TypeTagU32(), serializer);
-    expect(serializer.getBytes()).toEqual(new Uint8Array([0x04, 0x03, 0x02, 0x01]));
+    expect(serializer.getBytes()).toEqual(
+      new Uint8Array([0x04, 0x03, 0x02, 0x01]),
+    );
   });
 
   it("throws on serializing an invalid u32 arg", async () => {
@@ -220,7 +275,9 @@ describe("BuilderUtils", () => {
   it("serializes a u64 arg", async () => {
     let serializer = new Serializer();
     serializeArg(BigInt("18446744073709551615"), new TypeTagU64(), serializer);
-    expect(serializer.getBytes()).toEqual(new Uint8Array([0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]));
+    expect(serializer.getBytes()).toEqual(
+      new Uint8Array([0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]),
+    );
   });
 
   it("throws on serializing an invalid u64 arg", async () => {
@@ -232,9 +289,16 @@ describe("BuilderUtils", () => {
 
   it("serializes a u128 arg", async () => {
     let serializer = new Serializer();
-    serializeArg(BigInt("340282366920938463463374607431768211455"), new TypeTagU128(), serializer);
+    serializeArg(
+      BigInt("340282366920938463463374607431768211455"),
+      new TypeTagU128(),
+      serializer,
+    );
     expect(serializer.getBytes()).toEqual(
-      new Uint8Array([0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]),
+      new Uint8Array([
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xff, 0xff, 0xff,
+      ]),
     );
   });
 
@@ -248,14 +312,17 @@ describe("BuilderUtils", () => {
   it("serializes a u256 arg", async () => {
     let serializer = new Serializer();
     serializeArg(
-      BigInt("0x0001020304050607080910111213141516171819202122232425262728293031"),
+      BigInt(
+        "0x0001020304050607080910111213141516171819202122232425262728293031",
+      ),
       new TypeTagU256(),
       serializer,
     );
     expect(serializer.getBytes()).toEqual(
       new Uint8Array([
-        0x31, 0x30, 0x29, 0x28, 0x27, 0x26, 0x25, 0x24, 0x23, 0x22, 0x21, 0x20, 0x19, 0x18, 0x17, 0x16, 0x15, 0x14,
-        0x13, 0x12, 0x11, 0x10, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, 0x00,
+        0x31, 0x30, 0x29, 0x28, 0x27, 0x26, 0x25, 0x24, 0x23, 0x22, 0x21, 0x20,
+        0x19, 0x18, 0x17, 0x16, 0x15, 0x14, 0x13, 0x12, 0x11, 0x10, 0x09, 0x08,
+        0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, 0x00,
       ]),
     );
   });
@@ -270,15 +337,25 @@ describe("BuilderUtils", () => {
   it("serializes an AccountAddress arg", async () => {
     let serializer = new Serializer();
     serializeArg("0x1", new TypeTagAddress(), serializer);
-    expect(HexString.fromUint8Array(serializer.getBytes()).toShortString()).toEqual("0x1");
+    expect(
+      HexString.fromUint8Array(serializer.getBytes()).toShortString(),
+    ).toEqual("0x1");
 
     serializer = new Serializer();
     serializeArg(HexString.ensure("0x1"), new TypeTagAddress(), serializer);
-    expect(HexString.fromUint8Array(serializer.getBytes()).toShortString()).toEqual("0x1");
+    expect(
+      HexString.fromUint8Array(serializer.getBytes()).toShortString(),
+    ).toEqual("0x1");
 
     serializer = new Serializer();
-    serializeArg(AccountAddress.fromHex("0x1"), new TypeTagAddress(), serializer);
-    expect(HexString.fromUint8Array(serializer.getBytes()).toShortString()).toEqual("0x1");
+    serializeArg(
+      AccountAddress.fromHex("0x1"),
+      new TypeTagAddress(),
+      serializer,
+    );
+    expect(
+      HexString.fromUint8Array(serializer.getBytes()).toShortString(),
+    ).toEqual("0x1");
   });
 
   it("throws on serializing an invalid AccountAddress arg", async () => {
@@ -297,28 +374,47 @@ describe("BuilderUtils", () => {
   it("serializes a vector u8 arg from string characters", async () => {
     let serializer = new Serializer();
     serializeArg("abc", new TypeTagVector(new TypeTagU8()), serializer);
-    expect(serializer.getBytes()).toEqual(new Uint8Array([0x3, 0x61, 0x62, 0x63]));
+    expect(serializer.getBytes()).toEqual(
+      new Uint8Array([0x3, 0x61, 0x62, 0x63]),
+    );
   });
 
   it("serializes a vector u8 arg from a hex string", async () => {
     let serializer = new Serializer();
-    serializeArg(HexString.ensure("0x010203"), new TypeTagVector(new TypeTagU8()), serializer);
-    expect(serializer.getBytes()).toEqual(new Uint8Array([0x3, 0x01, 0x02, 0x03]));
+    serializeArg(
+      HexString.ensure("0x010203"),
+      new TypeTagVector(new TypeTagU8()),
+      serializer,
+    );
+    expect(serializer.getBytes()).toEqual(
+      new Uint8Array([0x3, 0x01, 0x02, 0x03]),
+    );
   });
 
   it("serializes a vector u8 arg from a uint8array", async () => {
     let serializer = new Serializer();
-    serializeArg(new Uint8Array([0x61, 0x62, 0x63]), new TypeTagVector(new TypeTagU8()), serializer);
-    expect(serializer.getBytes()).toEqual(new Uint8Array([0x3, 0x61, 0x62, 0x63]));
+    serializeArg(
+      new Uint8Array([0x61, 0x62, 0x63]),
+      new TypeTagVector(new TypeTagU8()),
+      serializer,
+    );
+    expect(serializer.getBytes()).toEqual(
+      new Uint8Array([0x3, 0x61, 0x62, 0x63]),
+    );
   });
 
   it("serializes a vector of Objects", async () => {
     let serializer = new Serializer();
-    serializeArg(["0xbeef"], new TypeTagVector(new TypeTagStruct(objectStructTag(new TypeTagU8()))), serializer);
+    serializeArg(
+      ["0xbeef"],
+      new TypeTagVector(new TypeTagStruct(objectStructTag(new TypeTagU8()))),
+      serializer,
+    );
     expect(serializer.getBytes()).toEqual(
       new Uint8Array([
-        0x1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xbe, 0xef,
+        0x1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xbe, 0xef,
       ]),
     );
   });
@@ -333,43 +429,66 @@ describe("BuilderUtils", () => {
   it("serializes a string arg", async () => {
     let serializer = new Serializer();
     serializeArg("abc", new TypeTagStruct(stringStructTag), serializer);
-    expect(serializer.getBytes()).toEqual(new Uint8Array([0x3, 0x61, 0x62, 0x63]));
+    expect(serializer.getBytes()).toEqual(
+      new Uint8Array([0x3, 0x61, 0x62, 0x63]),
+    );
   });
 
   it("serializes an empty option arg", async () => {
     let serializer = new Serializer();
-    serializeArg(undefined, new TypeTagStruct(optionStructTag(new TypeTagU8())), serializer);
+    serializeArg(
+      undefined,
+      new TypeTagStruct(optionStructTag(new TypeTagU8())),
+      serializer,
+    );
     expect(serializer.getBytes()).toEqual(new Uint8Array([0x0]));
 
     let serializer2 = new Serializer();
-    serializeArg(null, new TypeTagStruct(optionStructTag(new TypeTagU8())), serializer2);
+    serializeArg(
+      null,
+      new TypeTagStruct(optionStructTag(new TypeTagU8())),
+      serializer2,
+    );
     expect(serializer2.getBytes()).toEqual(new Uint8Array([0x0]));
   });
 
   it("serializes an option num arg", async () => {
     let serializer = new Serializer();
-    serializeArg("1", new TypeTagStruct(optionStructTag(new TypeTagU8())), serializer);
+    serializeArg(
+      "1",
+      new TypeTagStruct(optionStructTag(new TypeTagU8())),
+      serializer,
+    );
     expect(serializer.getBytes()).toEqual(new Uint8Array([0x1, 0x1]));
   });
 
   it("serializes an option string arg", async () => {
     let serializer = new Serializer();
-    serializeArg("abc", new TypeTagStruct(optionStructTag(new TypeTagStruct(stringStructTag))), serializer);
-    expect(serializer.getBytes()).toEqual(new Uint8Array([0x1, 0x3, 0x61, 0x62, 0x63]));
+    serializeArg(
+      "abc",
+      new TypeTagStruct(optionStructTag(new TypeTagStruct(stringStructTag))),
+      serializer,
+    );
+    expect(serializer.getBytes()).toEqual(
+      new Uint8Array([0x1, 0x3, 0x61, 0x62, 0x63]),
+    );
   });
 
   it("serializes a optional Object", async () => {
     let serializer = new Serializer();
     serializeArg(
       "0x01",
-      new TypeTagStruct(optionStructTag(new TypeTagStruct(objectStructTag(new TypeTagU8())))),
+      new TypeTagStruct(
+        optionStructTag(new TypeTagStruct(objectStructTag(new TypeTagU8()))),
+      ),
       serializer,
     );
     //00 00 00 00 00000000 00000000 00000000 00000000 00000000 00000000 00000000
     expect(serializer.getBytes()).toEqual(
       new Uint8Array([
-        0x1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+        0x1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
       ]),
     );
   });
@@ -380,7 +499,12 @@ describe("BuilderUtils", () => {
       serializeArg(
         "abc",
         new TypeTagStruct(
-          new StructTag(AccountAddress.fromHex("0x3"), new Identifier("token"), new Identifier("Token"), []),
+          new StructTag(
+            AccountAddress.fromHex("0x3"),
+            new Identifier("token"),
+            new Identifier("Token"),
+            [],
+          ),
         ),
         serializer,
       );
@@ -428,11 +552,21 @@ describe("BuilderUtils", () => {
   });
 
   it("converts an AccountAddress TransactionArgument", async () => {
-    let res = argToTransactionArgument("0x1", new TypeTagAddress()) as TransactionArgumentAddress;
-    expect(HexString.fromUint8Array(res.value.address).toShortString()).toEqual("0x1");
+    let res = argToTransactionArgument(
+      "0x1",
+      new TypeTagAddress(),
+    ) as TransactionArgumentAddress;
+    expect(HexString.fromUint8Array(res.value.address).toShortString()).toEqual(
+      "0x1",
+    );
 
-    res = argToTransactionArgument(AccountAddress.fromHex("0x2"), new TypeTagAddress()) as TransactionArgumentAddress;
-    expect(HexString.fromUint8Array(res.value.address).toShortString()).toEqual("0x2");
+    res = argToTransactionArgument(
+      AccountAddress.fromHex("0x2"),
+      new TypeTagAddress(),
+    ) as TransactionArgumentAddress;
+    expect(HexString.fromUint8Array(res.value.address).toShortString()).toEqual(
+      "0x2",
+    );
 
     expect(() => {
       argToTransactionArgument(123456, new TypeTagAddress());

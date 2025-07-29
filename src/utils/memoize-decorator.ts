@@ -28,18 +28,37 @@ export function Memoize(args?: MemoizeArgs | MemoizeArgs["hashFunction"]) {
     hashFunction = args;
   }
 
-  return (target: Object, propertyKey: string, descriptor: TypedPropertyDescriptor<any>) => {
+  return (
+    target: Object,
+    propertyKey: string,
+    descriptor: TypedPropertyDescriptor<any>,
+  ) => {
     if (descriptor.value != null) {
-      descriptor.value = getNewFunction(descriptor.value, hashFunction, ttlMs, tags);
+      descriptor.value = getNewFunction(
+        descriptor.value,
+        hashFunction,
+        ttlMs,
+        tags,
+      );
     } else if (descriptor.get != null) {
-      descriptor.get = getNewFunction(descriptor.get, hashFunction, ttlMs, tags);
+      descriptor.get = getNewFunction(
+        descriptor.get,
+        hashFunction,
+        ttlMs,
+        tags,
+      );
     } else {
-      throw new Error("Only put a Memoize() decorator on a method or get accessor.");
+      throw new Error(
+        "Only put a Memoize() decorator on a method or get accessor.",
+      );
     }
   };
 }
 
-export function MemoizeExpiring(ttlMs: number, hashFunction?: MemoizeArgs["hashFunction"]) {
+export function MemoizeExpiring(
+  ttlMs: number,
+  hashFunction?: MemoizeArgs["hashFunction"],
+) {
   return Memoize({
     ttlMs,
     hashFunction,

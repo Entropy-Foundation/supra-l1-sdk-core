@@ -5,7 +5,13 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable max-classes-per-file */
 import { AccountAddress } from "./account_address";
-import { Deserializer, Seq, Serializer, deserializeVector, serializeVector } from "../bcs";
+import {
+  Deserializer,
+  Seq,
+  Serializer,
+  deserializeVector,
+  serializeVector,
+} from "../bcs";
 import { Identifier } from "./identifier";
 
 export abstract class TypeTag {
@@ -167,7 +173,8 @@ export class TypeTagStruct extends TypeTag {
     if (
       this.value.module_name.value === "string" &&
       this.value.name.value === "String" &&
-      this.value.address.toHexString() === AccountAddress.CORE_CODE_ADDRESS.toHexString()
+      this.value.address.toHexString() ===
+        AccountAddress.CORE_CODE_ADDRESS.toHexString()
     ) {
       return true;
     }
@@ -191,7 +198,9 @@ export class StructTag {
    */
   static fromString(structTag: string): StructTag {
     // Use the TypeTagParser to parse the string literal into a TypeTagStruct
-    const typeTagStruct = new TypeTagParser(structTag).parseTypeTag() as TypeTagStruct;
+    const typeTagStruct = new TypeTagParser(
+      structTag,
+    ).parseTypeTag() as TypeTagStruct;
 
     // Convert and return as a StructTag
     return new StructTag(
@@ -226,11 +235,21 @@ export const stringStructTag = new StructTag(
 );
 
 export function optionStructTag(typeArg: TypeTag): StructTag {
-  return new StructTag(AccountAddress.fromHex("0x1"), new Identifier("option"), new Identifier("Option"), [typeArg]);
+  return new StructTag(
+    AccountAddress.fromHex("0x1"),
+    new Identifier("option"),
+    new Identifier("Option"),
+    [typeArg],
+  );
 }
 
 export function objectStructTag(typeArg: TypeTag): StructTag {
-  return new StructTag(AccountAddress.fromHex("0x1"), new Identifier("object"), new Identifier("Object"), [typeArg]);
+  return new StructTag(
+    AccountAddress.fromHex("0x1"),
+    new Identifier("object"),
+    new Identifier("Object"),
+    [typeArg],
+  );
 }
 
 function bail(message: string) {
@@ -358,7 +377,10 @@ export class TypeTagParser {
     this.consume(">");
   }
 
-  private parseCommaList(endToken: TokenValue, allowTraillingComma: boolean): TypeTag[] {
+  private parseCommaList(
+    endToken: TokenValue,
+    allowTraillingComma: boolean,
+  ): TypeTag[] {
     const res: TypeTag[] = [];
     if (this.tokens.length <= 0) {
       bail("Invalid type tag.");
@@ -372,7 +394,11 @@ export class TypeTagParser {
       }
 
       this.consume(",");
-      if (this.tokens.length > 0 && this.tokens[0][1] === endToken && allowTraillingComma) {
+      if (
+        this.tokens.length > 0 &&
+        this.tokens[0][1] === endToken &&
+        allowTraillingComma
+      ) {
         break;
       }
 
@@ -424,7 +450,10 @@ export class TypeTagParser {
     if (tokenVal === "string") {
       return new TypeTagStruct(stringStructTag);
     }
-    if (tokenTy === "IDENT" && (tokenVal.startsWith("0x") || tokenVal.startsWith("0X"))) {
+    if (
+      tokenTy === "IDENT" &&
+      (tokenVal.startsWith("0x") || tokenVal.startsWith("0X"))
+    ) {
       const address = AccountAddress.fromHex(tokenVal);
       this.consume("::");
       const [moduleTokenTy, module] = this.tokens.shift()!;
@@ -441,7 +470,8 @@ export class TypeTagParser {
       // Neither matter as we can't do type checks, so just the address applies and we consume the entire generic.
       // TODO: Support parsing structs that don't come from core code address
       if (
-        AccountAddress.CORE_CODE_ADDRESS.toHexString() === address.toHexString() &&
+        AccountAddress.CORE_CODE_ADDRESS.toHexString() ===
+          address.toHexString() &&
         module === "object" &&
         name === "Object"
       ) {
@@ -457,7 +487,12 @@ export class TypeTagParser {
         this.consume(">");
       }
 
-      const structTag = new StructTag(address, new Identifier(module), new Identifier(name), tyTags);
+      const structTag = new StructTag(
+        address,
+        new Identifier(module),
+        new Identifier(name),
+        tyTags,
+      );
       return new TypeTagStruct(structTag);
     }
     if (tokenTy === "GENERIC") {

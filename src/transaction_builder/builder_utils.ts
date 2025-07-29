@@ -31,7 +31,10 @@ import { Serializer } from "../bcs";
 function assertType(val: any, types: string[] | string, message?: string) {
   if (!types?.includes(typeof val)) {
     throw new Error(
-      message || `Invalid arg: ${val} type should be ${types instanceof Array ? types.join(" or ") : types}`,
+      message ||
+        `Invalid arg: ${val} type should be ${
+          types instanceof Array ? types.join(" or ") : types
+        }`,
     );
   }
 }
@@ -71,11 +74,20 @@ export function ensureBigInt(val: number | bigint | string): bigint {
   return BigInt(val);
 }
 
-export function serializeArg(argVal: any, argType: TypeTag, serializer: Serializer) {
+export function serializeArg(
+  argVal: any,
+  argType: TypeTag,
+  serializer: Serializer,
+) {
   serializeArgInner(argVal, argType, serializer, 0);
 }
 
-function serializeArgInner(argVal: any, argType: TypeTag, serializer: Serializer, depth: number) {
+function serializeArgInner(
+  argVal: any,
+  argType: TypeTag,
+  serializer: Serializer,
+  depth: number,
+) {
   if (argType instanceof TypeTagBool) {
     serializer.serializeBool(ensureBoolean(argVal));
   } else if (argType instanceof TypeTagU8) {
@@ -113,7 +125,12 @@ function serializeAddress(argVal: any, serializer: Serializer) {
   addr.serialize(serializer);
 }
 
-function serializeVector(argVal: any, argType: TypeTagVector, serializer: Serializer, depth: number) {
+function serializeVector(
+  argVal: any,
+  argType: TypeTagVector,
+  serializer: Serializer,
+  depth: number,
+) {
   // We are serializing a vector<u8>
   if (argType.value instanceof TypeTagU8) {
     if (argVal instanceof Uint8Array) {
@@ -137,12 +154,26 @@ function serializeVector(argVal: any, argType: TypeTagVector, serializer: Serial
 
   serializer.serializeU32AsUleb128(argVal.length);
 
-  argVal.forEach((arg) => serializeArgInner(arg, argType.value, serializer, depth + 1));
+  argVal.forEach((arg) =>
+    serializeArgInner(arg, argType.value, serializer, depth + 1),
+  );
 }
 
-function serializeStruct(argVal: any, argType: TypeTag, serializer: Serializer, depth: number) {
-  const { address, module_name: moduleName, name, type_args: typeArgs } = (argType as TypeTagStruct).value;
-  const structType = `${HexString.fromUint8Array(address.address).toShortString()}::${moduleName.value}::${name.value}`;
+function serializeStruct(
+  argVal: any,
+  argType: TypeTag,
+  serializer: Serializer,
+  depth: number,
+) {
+  const {
+    address,
+    module_name: moduleName,
+    name,
+    type_args: typeArgs,
+  } = (argType as TypeTagStruct).value;
+  const structType = `${HexString.fromUint8Array(
+    address.address,
+  ).toShortString()}::${moduleName.value}::${name.value}`;
   if (structType === "0x1::string::String") {
     assertType(argVal, ["string"]);
     serializer.serializeStr(argVal);
@@ -150,7 +181,9 @@ function serializeStruct(argVal: any, argType: TypeTag, serializer: Serializer, 
     serializeAddress(argVal, serializer);
   } else if (structType === "0x1::option::Option") {
     if (typeArgs.length !== 1) {
-      throw new Error(`Option has the wrong number of type arguments ${typeArgs.length}`);
+      throw new Error(
+        `Option has the wrong number of type arguments ${typeArgs.length}`,
+      );
     }
     serializeOption(argVal, typeArgs[0], serializer, depth);
   } else {
@@ -158,7 +191,12 @@ function serializeStruct(argVal: any, argType: TypeTag, serializer: Serializer, 
   }
 }
 
-function serializeOption(argVal: any, argType: TypeTag, serializer: Serializer, depth: number) {
+function serializeOption(
+  argVal: any,
+  argType: TypeTag,
+  serializer: Serializer,
+  depth: number,
+) {
   // For option, we determine if it's empty or not empty first
   // empty option is nothing, we specifically check for undefined to prevent fuzzy matching
   if (argVal === undefined || argVal === null) {
@@ -172,7 +210,10 @@ function serializeOption(argVal: any, argType: TypeTag, serializer: Serializer, 
   }
 }
 
-export function argToTransactionArgument(argVal: any, argType: TypeTag): TransactionArgument {
+export function argToTransactionArgument(
+  argVal: any,
+  argType: TypeTag,
+): TransactionArgument {
   if (argType instanceof TypeTagBool) {
     return new TransactionArgumentBool(ensureBoolean(argVal));
   }

@@ -5,13 +5,19 @@
 import { HexString } from "../../utils";
 import { bcsToBytes, Deserializer } from "../../bcs";
 import { Ed25519PublicKey, Ed25519Signature } from "../../supra_types/ed25519";
-import { MultiEd25519PublicKey, MultiEd25519Signature } from "../../supra_types/multi_ed25519";
+import {
+  MultiEd25519PublicKey,
+  MultiEd25519Signature,
+} from "../../supra_types/multi_ed25519";
 
 describe("MultiEd25519", () => {
   it("public key serializes to bytes correctly", async () => {
-    const publicKey1 = "b9c6ee1630ef3e711144a648db06bbb2284f7274cfbee53ffcee503cc1a49200";
-    const publicKey2 = "aef3f4a4b8eca1dfc343361bf8e436bd42de9259c04b8314eb8e2054dd6e82ab";
-    const publicKey3 = "8a5762e21ac1cdb3870442c77b4c3af58c7cedb8779d0270e6d4f1e2f7367d74";
+    const publicKey1 =
+      "b9c6ee1630ef3e711144a648db06bbb2284f7274cfbee53ffcee503cc1a49200";
+    const publicKey2 =
+      "aef3f4a4b8eca1dfc343361bf8e436bd42de9259c04b8314eb8e2054dd6e82ab";
+    const publicKey3 =
+      "8a5762e21ac1cdb3870442c77b4c3af58c7cedb8779d0270e6d4f1e2f7367d74";
 
     const pubKeyMultiSig = new MultiEd25519PublicKey(
       [
@@ -22,15 +28,20 @@ describe("MultiEd25519", () => {
       2,
     );
 
-    expect(HexString.fromUint8Array(pubKeyMultiSig.toBytes()).noPrefix()).toEqual(
+    expect(
+      HexString.fromUint8Array(pubKeyMultiSig.toBytes()).noPrefix(),
+    ).toEqual(
       "b9c6ee1630ef3e711144a648db06bbb2284f7274cfbee53ffcee503cc1a49200aef3f4a4b8eca1dfc343361bf8e436bd42de9259c04b8314eb8e2054dd6e82ab8a5762e21ac1cdb3870442c77b4c3af58c7cedb8779d0270e6d4f1e2f7367d7402",
     );
   });
 
   it("public key deserializes from bytes correctly", async () => {
-    const publicKey1 = "b9c6ee1630ef3e711144a648db06bbb2284f7274cfbee53ffcee503cc1a49200";
-    const publicKey2 = "aef3f4a4b8eca1dfc343361bf8e436bd42de9259c04b8314eb8e2054dd6e82ab";
-    const publicKey3 = "8a5762e21ac1cdb3870442c77b4c3af58c7cedb8779d0270e6d4f1e2f7367d74";
+    const publicKey1 =
+      "b9c6ee1630ef3e711144a648db06bbb2284f7274cfbee53ffcee503cc1a49200";
+    const publicKey2 =
+      "aef3f4a4b8eca1dfc343361bf8e436bd42de9259c04b8314eb8e2054dd6e82ab";
+    const publicKey3 =
+      "8a5762e21ac1cdb3870442c77b4c3af58c7cedb8779d0270e6d4f1e2f7367d74";
 
     const pubKeyMultiSig = new MultiEd25519PublicKey(
       [
@@ -40,7 +51,9 @@ describe("MultiEd25519", () => {
       ],
       2,
     );
-    const deserialzed = MultiEd25519PublicKey.deserialize(new Deserializer(bcsToBytes(pubKeyMultiSig)));
+    const deserialzed = MultiEd25519PublicKey.deserialize(
+      new Deserializer(bcsToBytes(pubKeyMultiSig)),
+    );
     expect(HexString.fromUint8Array(deserialzed.toBytes()).noPrefix()).toEqual(
       HexString.fromUint8Array(pubKeyMultiSig.toBytes()).noPrefix(),
     );
@@ -85,7 +98,9 @@ describe("MultiEd25519", () => {
       new HexString(bitmap).toUint8Array(),
     );
 
-    const deserialzed = MultiEd25519Signature.deserialize(new Deserializer(bcsToBytes(multisig)));
+    const deserialzed = MultiEd25519Signature.deserialize(
+      new Deserializer(bcsToBytes(multisig)),
+    );
     expect(HexString.fromUint8Array(deserialzed.toBytes()).noPrefix()).toEqual(
       HexString.fromUint8Array(multisig.toBytes()).noPrefix(),
     );
