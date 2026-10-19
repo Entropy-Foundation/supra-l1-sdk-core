@@ -4,6 +4,11 @@ All notable changes to the Typescript SDK will be captured in this file. This ch
 
 ## Unreleased
 
+## 2.0.2 (YYYY-MM-DD)
+
+- `SupraAccount` no longer includes key material in `JSON.stringify`, `util.inspect` or `console.log` output; use `toPrivateKeyObject()` to export the key. `JSON.stringify` returns the `address` and `publicKeyHex` of the account, and `signingKey` is a non-enumerable property.
+- `SupraAccount.fromDerivePath` throws `Invalid mnemonic` for a mnemonic that fails BIP-39 checksum or English wordlist validation.
+
 ## 2.0.0 (2025-4-16)
 
 - Refactor and remove all Aptos-related components
