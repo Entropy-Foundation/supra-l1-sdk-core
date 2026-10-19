@@ -40,8 +40,10 @@ const NODE_INSPECT_CUSTOM = Symbol.for("nodejs.util.inspect.custom");
 /**
  * Class for creating and managing Supra account
  *
- * `JSON.stringify`, `util.inspect` and `console.log` output of an instance contains the
- * address and the public key only. {@link SupraAccount.toPrivateKeyObject} exports the private key.
+ * `JSON.stringify` output, and Node.js `util.inspect` and `console.log` output, of an instance
+ * contain the address and the public key only. Browser developer tools list non-enumerable
+ * properties when a logged object is expanded, so they can still show `signingKey`.
+ * {@link SupraAccount.toPrivateKeyObject} exports the private key.
  */
 export class SupraAccount {
   /**
