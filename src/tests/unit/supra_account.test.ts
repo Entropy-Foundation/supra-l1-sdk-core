@@ -8,6 +8,9 @@ import {
 } from "../../account";
 import { HexString } from "../../utils";
 import nacl from "tweetnacl";
+import * as bip39 from "@scure/bip39";
+import { wordlist } from "@scure/bip39/wordlists/english";
+import util from "util";
 
 const supraAccountObject: SupraAccountObject = {
   address: "0x978c213990c4833df71548df7ce49d54c759d6b6d932de22b24d56060b7af2aa",
@@ -110,4 +113,185 @@ test("Gets the collection id", async () => {
   expect(
     SupraAccount.getCollectionID(creatorAddress, collectionName).hex(),
   ).toBe("0x0524ffd0955d9c8c405315829ce896f5ced080cd15f146bbc690323d4d141b12");
+});
+
+describe("SupraAccount output excludes key material", () => {
+  /**
+   * Returns the encodings of `bytes` that are searched for in the output:
+   * hex with and without `0x`, base64, and comma-separated decimal bytes.
+   */
+  function encodings(bytes: Uint8Array): string[] {
+    const hex = Buffer.from(bytes).toString("hex");
+    return [
+      hex,
+      `0x${hex}`,
+      Buffer.from(bytes).toString("base64"),
+      Array.from(bytes).join(","),
+    ];
+  }
+
+  /**
+   * Returns true if `output` contains any encoding of `bytes`. Decimal bytes are also matched
+   * after removing everything except digit runs, so that padded or line-wrapped arrays match.
+   */
+  function containsBytes(output: string, bytes: Uint8Array): boolean {
+    const digitRuns = (output.match(/\d+/g) ?? []).join(",");
+    return encodings(bytes).some(
+      (needle) => output.includes(needle) || digitRuns.includes(needle),
+    );
+  }
+
+  const account = new SupraAccount();
+  const { secretKey } = account.signingKey;
+  const seed = secretKey.slice(0, 32);
+
+  const outputs: [string, () => string][] = [
+    ["JSON.stringify", () => JSON.stringify(account)],
+    ["util.inspect", () => util.inspect(account)],
+    [
+      "util.inspect showHidden",
+      () => util.inspect(account, { showHidden: true }),
+    ],
+    [
+      "util.inspect showHidden, unlimited depth and array length",
+      () =>
+        util.inspect(account, {
+          showHidden: true,
+          depth: Infinity,
+          maxArrayLength: Infinity,
+          getters: true,
+        }),
+    ],
+    ["console.log(account)", () => util.format(account)],
+    ['console.log("%o", account)', () => util.format("%o", account)],
+    ['console.log("%O", account)', () => util.format("%O", account)],
+    ['console.log("%j", account)', () => util.format("%j", account)],
+    ["object spread", () => util.inspect({ ...account }, { showHidden: true })],
+  ];
+
+  test("the search finds the key bytes in an output that contains them", () => {
+    const leaky = util.inspect(account.signingKey, { showHidden: true });
+    expect(containsBytes(leaky, seed)).toBe(true);
+    expect(containsBytes(leaky, secretKey)).toBe(true);
+    expect(
+      containsBytes(account.toPrivateKeyObject().privateKeyHex, seed),
+    ).toBe(true);
+  });
+
+  test.each(outputs)("%s contains no seed or secret key bytes", (_, render) => {
+    const output = render();
+    expect(containsBytes(output, seed)).toBe(false);
+    expect(containsBytes(output, secretKey)).toBe(false);
+  });
+
+  test.each(outputs)("%s contains the address", (_, render) => {
+    expect(render()).toContain(account.address().hex());
+  });
+
+  test("JSON.stringify returns the address and the public key", () => {
+    expect(JSON.parse(JSON.stringify(account))).toEqual({
+      address: account.address().hex(),
+      publicKeyHex: account.pubKey().hex(),
+    });
+  });
+
+  test("signingKey is not an enumerable own property", () => {
+    expect(Object.keys(account)).not.toContain("signingKey");
+    expect(
+      Object.getOwnPropertyDescriptor(account, "signingKey")?.enumerable,
+    ).toBe(false);
+  });
+});
+
+describe("SupraAccount key access", () => {
+  test("signingKey.publicKey and toPrivateKeyObject return the account's keys", () => {
+    const account = SupraAccount.fromSupraAccountObject(supraAccountObject);
+    expect(HexString.fromUint8Array(account.signingKey.publicKey).hex()).toBe(
+      supraAccountObject.publicKeyHex,
+    );
+    expect(HexString.fromUint8Array(account.signingKey.secretKey).hex()).toBe(
+      supraAccountObject.privateKeyHex,
+    );
+    expect(account.toPrivateKeyObject()).toEqual({
+      address: supraAccountObject.address,
+      publicKeyHex: supraAccountObject.publicKeyHex,
+      privateKeyHex: supraAccountObject.privateKeyHex.slice(0, 66),
+    });
+  });
+
+  test("signingKey.publicKey of a derived account matches the known public key", () => {
+    const account = SupraAccount.fromDerivePath(
+      "m/44'/637'/0'/0'/0'",
+      mnemonic,
+    );
+    expect(HexString.fromUint8Array(account.signingKey.publicKey).hex()).toBe(
+      "0xea526ba1710343d953461ff68641f1b7df5f23b9042ffa2d2a798d3adb3f3d6c",
+    );
+  });
+
+  test("toPrivateKeyObject round-trips a generated account", () => {
+    const a1 = new SupraAccount();
+    const a2 = SupraAccount.fromSupraAccountObject(a1.toPrivateKeyObject());
+    expect(a2.signingKey.secretKey).toEqual(a1.signingKey.secretKey);
+    expect(a2.signingKey.publicKey).toEqual(a1.signingKey.publicKey);
+    expect(a2.toPrivateKeyObject()).toEqual(a1.toPrivateKeyObject());
+  });
+
+  test("authKey is memoized", () => {
+    const account = new SupraAccount();
+    expect(account.authKey()).toBe(account.authKey());
+    expect(account.authKey().hex()).toBe(account.address().hex());
+  });
+});
+
+describe("SupraAccount.fromDerivePath mnemonic validation", () => {
+  const path = "m/44'/637'/0'/0'/0'";
+  const address =
+    "0x07968dab936c1bad187c60ce4082f307d030d780e91e694ae03aef16aba73f30";
+
+  test("throws for a 12-word phrase with a wrong checksum", () => {
+    const words = mnemonic.split(" ");
+    words[11] = "abandon";
+    const phrase = words.join(" ");
+    expect(words.every((word) => wordlist.includes(word))).toBe(true);
+    expect(bip39.validateMnemonic(phrase, wordlist)).toBe(false);
+    expect(() => SupraAccount.fromDerivePath(path, phrase)).toThrow(
+      new Error("Invalid mnemonic"),
+    );
+  });
+
+  test("throws for 12 words outside the wordlist", () => {
+    const phrase = Array(12).fill("zzzz").join(" ");
+    expect(() => SupraAccount.fromDerivePath(path, phrase)).toThrow(
+      new Error("Invalid mnemonic"),
+    );
+  });
+
+  test("throws for a word count that BIP-39 does not allow", () => {
+    expect(() =>
+      SupraAccount.fromDerivePath(
+        path,
+        mnemonic.split(" ").slice(0, 6).join(" "),
+      ),
+    ).toThrow(new Error("Invalid mnemonic"));
+  });
+
+  test("normalises whitespace and case before validation", () => {
+    const phrase = `  ${mnemonic.toUpperCase().split(" ").join(" \t ")}\n`;
+    expect(SupraAccount.fromDerivePath(path, phrase).address().hex()).toBe(
+      address,
+    );
+  });
+
+  test("derives the same account for a generated phrase each time", () => {
+    const phrase = bip39.generateMnemonic(wordlist);
+    const a1 = SupraAccount.fromDerivePath(path, phrase);
+    const a2 = SupraAccount.fromDerivePath(path, phrase);
+    expect(a1.address().hex()).toBe(a2.address().hex());
+    expect(
+      SupraAccount.fromDerivePath("m/44'/637'/1'/0'/0'", phrase)
+        .address()
+        .hex(),
+    ).not.toBe(a1.address().hex());
+  });
 });
