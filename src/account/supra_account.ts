@@ -3,6 +3,7 @@
 
 import nacl from "tweetnacl";
 import * as bip39 from "@scure/bip39";
+import { wordlist as englishWordlist } from "@scure/bip39/wordlists/english";
 import { bytesToHex } from "@noble/hashes/utils";
 import { sha256 } from "@noble/hashes/sha256";
 import { sha3_256 as sha3Hash } from "@noble/hashes/sha3";
@@ -23,13 +24,34 @@ export interface SupraAccountObject {
 }
 
 /**
+ * Non-secret data of a {@link SupraAccount}, returned by {@link SupraAccount.toJSON}.
+ */
+export interface SupraAccountPublicData {
+  address: Gen.HexEncodedBytes;
+  publicKeyHex: Gen.HexEncodedBytes;
+}
+
+/**
+ * Key under which Node.js `util.inspect` looks up a custom inspection function.
+ * Obtained through `Symbol.for` so that no `util` import is needed in browser builds.
+ */
+const NODE_INSPECT_CUSTOM = Symbol.for("nodejs.util.inspect.custom");
+
+/**
  * Class for creating and managing Supra account
+ *
+ * `JSON.stringify` output, and Node.js `util.inspect` and `console.log` output, of an instance
+ * contain the address and the public key only. Browser developer tools list non-enumerable
+ * properties when a logged object is expanded, so they can still show `signingKey`.
+ * {@link SupraAccount.toPrivateKeyObject} exports the private key.
  */
 export class SupraAccount {
   /**
-   * A private key and public key, associated with the given account
+   * A private key and public key, associated with the given account.
+   * Defined as a non-enumerable own property, so it is excluded from `Object.keys`,
+   * object spread and `JSON.stringify`.
    */
-  readonly signingKey: nacl.SignKeyPair;
+  declare readonly signingKey: nacl.SignKeyPair;
 
   /**
    * Address associated with the given account
@@ -44,18 +66,29 @@ export class SupraAccount {
   }
 
   /**
-   * Check's if the derive path is valid
+   * Checks if the derivation path matches `m/44'/637'/a'/c'/i'`, where `a`, `c` and `i`
+   * are decimal integers and every level is hardened.
    */
   static isValidPath(path: string): boolean {
     return /^m\/44'\/637'\/[0-9]+'\/[0-9]+'\/[0-9]+'+$/.test(path);
   }
 
   /**
-   * Creates new account with bip44 path and mnemonics,
-   * @param path. (e.g. m/44'/637'/0'/0'/0')
+   * Creates new account from a BIP-44 derivation path and a BIP-39 mnemonic.
+   *
+   * The path has the form `m/44'/637'/a'/c'/i'`: purpose 44, coin type 637, then account `a`,
+   * change `c` and address index `i`, all hardened (e.g. `m/44'/637'/0'/0'/0'`).
+   * Keys are derived with SLIP-0010 for Ed25519.
    * Detailed description: {@link https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki}
-   * @param mnemonics.
+   *
+   * The mnemonic is trimmed, runs of whitespace are collapsed to one space and words are
+   * lower-cased; the result is then validated against the BIP-39 English wordlist and checksum.
+   *
+   * @param path Derivation path of the form `m/44'/637'/a'/c'/i'`.
+   * @param mnemonics BIP-39 mnemonic phrase (English wordlist).
    * @returns SupraAccount
+   * @throws Error `Invalid derivation path` if `path` does not match the pattern.
+   * @throws Error `Invalid mnemonic` if the normalised phrase fails BIP-39 wordlist or checksum validation.
    */
   static fromDerivePath(path: string, mnemonics: string): SupraAccount {
     if (!SupraAccount.isValidPath(path)) {
@@ -67,6 +100,10 @@ export class SupraAccount {
       .split(/\s+/)
       .map((part) => part.toLowerCase())
       .join(" ");
+
+    if (!bip39.validateMnemonic(normalizeMnemonics, englishWordlist)) {
+      throw new Error("Invalid mnemonic");
+    }
 
     const { key } = derivePath(
       path,
@@ -88,13 +125,15 @@ export class SupraAccount {
     privateKeyBytes?: Uint8Array | undefined,
     address?: MaybeHexString,
   ) {
-    if (privateKeyBytes) {
-      this.signingKey = nacl.sign.keyPair.fromSeed(
-        privateKeyBytes.slice(0, 32),
-      );
-    } else {
-      this.signingKey = nacl.sign.keyPair();
-    }
+    const signingKey = privateKeyBytes
+      ? nacl.sign.keyPair.fromSeed(privateKeyBytes.slice(0, 32))
+      : nacl.sign.keyPair();
+    Object.defineProperty(this, "signingKey", {
+      value: signingKey,
+      enumerable: false,
+      writable: true,
+      configurable: true,
+    });
     this.accountAddress = HexString.ensure(address || this.authKey().hex());
   }
 
@@ -229,6 +268,27 @@ export class SupraAccount {
         this.signingKey.secretKey.slice(0, 32),
       ).hex(),
     };
+  }
+
+  /**
+   * Returns the account's non-secret data. `JSON.stringify` calls this method.
+   * @returns The address and the public key of the account
+   */
+  toJSON(): SupraAccountPublicData {
+    return {
+      address: this.address().hex(),
+      publicKeyHex: this.pubKey().hex(),
+    };
+  }
+
+  /**
+   * Returns the representation used by Node.js `util.inspect` and `console.log`,
+   * containing the address and the public key of the account.
+   * @returns The inspection string
+   */
+  [NODE_INSPECT_CUSTOM](): string {
+    const { address, publicKeyHex } = this.toJSON();
+    return `SupraAccount { address: '${address}', publicKeyHex: '${publicKeyHex}' }`;
   }
 }
 

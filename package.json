@@ -1,6 +1,6 @@
 {
   "name": "supra-l1-sdk-core",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Core of the Supra-L1-SDK",
   "packageManager": "pnpm@8.3.1",
   "license": "Apache-2.0",
