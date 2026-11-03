@@ -4,7 +4,10 @@ All notable changes to the Typescript SDK will be captured in this file. This ch
 
 ## Unreleased
 
-## 2.0.2 (YYYY-MM-DD)
+## 2.0.2 (2026-11-03)
+
+- The npm package links to its source repository (`repository`, `homepage` and `bugs` in `package.json`).
+- The README states that the package is in maintenance mode and names `supra-ts-sdk` for new projects.
 
 - `SupraAccount` no longer includes key material in `JSON.stringify` output, or in Node.js `util.inspect` and `console.log` output; use `toPrivateKeyObject()` to export the key. `JSON.stringify` returns the `address` and `publicKeyHex` of the account, and `signingKey` is a non-enumerable property. Browser developer tools list non-enumerable properties when a logged object is expanded, so they can still show `signingKey`.
 - `SupraAccount.fromDerivePath` throws `Invalid mnemonic` for a mnemonic that fails BIP-39 checksum or English wordlist validation.

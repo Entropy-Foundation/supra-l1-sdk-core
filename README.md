@@ -7,6 +7,10 @@ providing essential low-level implementations. This SDK provides core components
 by the [supra-l1-sdk](https://github.com/Entropy-Foundation/supra-l1-sdk/tree/master) to deliver a
 seamless and efficient developer experience for interacting with the Supra network.
 
+> **Maintenance mode.** This package receives fixes, not new features. New projects should use
+> [supra-ts-sdk](https://github.com/Entropy-Foundation/supra-ts-sdk), which re-exports `SupraAccount`, `BCS`,
+> `HexString`, `TxnBuilderTypes` and `TypeTagParser` from this package.
+
 ## Installation
 
 ```ts
